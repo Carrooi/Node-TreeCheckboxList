@@ -36,7 +36,7 @@ data.json:
 	},
 	"second": {
 		"title": "Second item",
-		"items: {
+		"items": {
 			"second_first": {
 				"title": "First item in second section"
 			}
@@ -87,6 +87,9 @@ Another option is set summary into `div` element. This will render `ul` list int
 ![dialog](https://raw.github.com/sakren/node-tree-checkbox-list/master/example.png)
 
 ## Changelog list
+
+* 1.0.1
+	+ Typo in readme
 
 * 1.0.0
 	+ Initial version
