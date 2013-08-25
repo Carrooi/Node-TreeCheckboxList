@@ -1,0 +1,36 @@
+{
+	"name": "tree-checkbox-list",
+	"description": "Modal dialog with checkbox tree list",
+	"version": "1.0.0",
+	"author": {
+		"name": "David Kudera",
+		"email": "sakren@gmail.com"
+	},
+	"keywords": [
+		"tree",
+		"checkbox",
+		"client",
+		"browser",
+		"modal",
+		"selection"
+	],
+	"repository": {
+		"type": "git",
+		"url": "git@github.com:sakren/node-tree-checkbox-list.git"
+	},
+	"license": "MIT",
+	"engines": {
+		"node": "*"
+	},
+	"main": "./lib/Tree.js",
+	"dependencies": {
+		"browser-http": "latest",
+		"modal-dialog": "latest"
+	},
+	"devDependencies": {
+		"should": "1.2.2"
+	},
+	"scripts": {
+		"test": "cd ./test; mocha ./index.js --reporter spec;"
+	}
+}
