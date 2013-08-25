@@ -3,6 +3,10 @@
 Modal dialog with checkbox list in tree.
 Depends on jquery.
 
+## Changelog
+
+Changelog is in the bottom of this readme.
+
 ## Usage
 
 html:
@@ -78,9 +82,9 @@ tree.setSummaryElement($('#summaryInput'));
 Another option is set summary into `div` element. This will render `ul` list into it with list of selected items with
 `Remove` link.
 
-## Changelog
+## Example of modal dialog
 
-Changelog is in the bottom of this readme.
+![dialog](https://raw.github.com/sakren/node-tree-checkbox-list/master/example.png)
 
 ## Changelog list
 
