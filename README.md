@@ -65,6 +65,13 @@ If you want to send data via form, you can get just array with names.
 var selected = tree.serialize();
 ```
 
+You can automatize this by setting resultElement. It can be only text input and after every change, stringified array
+of names will be added into this input.
+
+```
+tree.setResultElement($('#resultInput'));
+```
+
 ## Change style
 
 Look for options in [modal-dialog](https://npmjs.org/package/modal-dialog) package.
@@ -87,6 +94,9 @@ Another option is set summary into `div` element. This will render `ul` list int
 ![dialog](https://raw.github.com/sakren/node-tree-checkbox-list/master/example.png)
 
 ## Changelog list
+
+* 1.1.0
+	+ Added resultElement options
 
 * 1.0.1
 	+ Typo in readme

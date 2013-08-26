@@ -33,6 +33,8 @@ class Tree
 
 	summaryElement: null
 
+	resultElement: null
+
 	initialized: false
 
 	title: 'Select'
@@ -215,6 +217,14 @@ class Tree
 		@summaryElement = el
 
 
+	setResultElement: (el) ->
+		el = $(el)
+		if el.get(0).nodeName.toLowerCase() != 'input' || el.attr('type') != 'text'
+			throw new Error 'Resule: invalid element'
+
+		@resultElement = el
+
+
 	getSelection: ->
 		@minimize()
 		result = {}
@@ -236,6 +246,9 @@ class Tree
 
 
 	refreshSummary: ->
+		if @resultElement != null
+			@resultElement.val(JSON.stringify(@serialize()))
+
 		if @summaryElement != null
 			data = @getSelection()
 
