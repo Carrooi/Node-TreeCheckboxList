@@ -95,6 +95,9 @@ Another option is set summary into `div` element. This will render `ul` list int
 
 ## Changelog list
 
+* 1.1.1
+	+ Head title wrapped into span
+
 * 1.1.0
 	+ Added resultElement options
 

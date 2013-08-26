@@ -69,7 +69,7 @@ class Tree
 			@renderBranch(name, item).appendTo(content)
 
 		title = $('<div>',
-			html: @title
+			html: $("<span>#{@title}</span>")
 		)
 
 		$('<input>',
