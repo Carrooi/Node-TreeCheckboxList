@@ -26,11 +26,5 @@
 	"dependencies": {
 		"browser-http": "latest",
 		"modal-dialog": "latest"
-	},
-	"devDependencies": {
-		"should": "1.2.2"
-	},
-	"scripts": {
-		"test": "cd ./test; mocha ./index.js --reporter spec;"
 	}
 }
