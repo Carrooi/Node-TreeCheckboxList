@@ -1,6 +1,5 @@
 try $ = require 'jquery' catch err then $ = window.jQuery
 Dialog = require 'modal-dialog'
-Http = require 'browser-http'
 
 class Tree
 
@@ -19,10 +18,6 @@ class Tree
 
 	name: null
 
-	opener: null
-
-	event: 'click'
-
 	data: null
 
 	defaults: null
@@ -40,20 +35,12 @@ class Tree
 	title: 'Select'
 
 
-	constructor: (@opener, url = null, @event = 'click') ->
+	constructor:  ->
 		Tree.counter++
 
 		@defaults = []
 		@num = Tree.counter
 		@name = @getId()
-		@opener = $(@opener)
-		@opener.on(@event, (e) =>
-			e.preventDefault()
-			@open()
-		)
-
-		if url != null
-			Http.getJson(url).then( (response) => @data = response.data )
 
 
 	getId: ->
@@ -61,38 +48,41 @@ class Tree
 
 
 	prepare: ->
-		if @data == null
-			throw new Error 'There are no data'
+		if !@initialized
+			if @data == null
+				throw new Error 'There are no data'
 
-		content = $('<ul>')
-		for name, item of @data
-			@renderBranch(name, item).appendTo(content)
+			content = $('<ul>')
+			for name, item of @data
+				@renderBranch(name, item).appendTo(content)
 
-		title = $('<div>',
-			html: $("<span>#{@title}</span>")
-		)
+			title = $('<div>',
+				html: $("<span>#{@title}</span>")
+			)
 
-		$('<input>',
-			type: 'text'
-			'data-previous': ''
-			keyup: (e) =>
-				input = $(e.target)
-				value = input.val()
-				if value != input.attr('data-previous')
-					input.attr('data-previous', value)
-					@search(value)
-			css:
-				float: 'right'
-		).appendTo(title)
+			$('<input>',
+				type: 'text'
+				'data-previous': ''
+				keyup: (e) =>
+					input = $(e.target)
+					value = input.val()
+					if value != input.attr('data-previous')
+						input.attr('data-previous', value)
+						@search(value)
+				css:
+					float: 'right'
+			).appendTo(title)
 
-		@dialog = new Dialog
-		@dialog.header = title
-		@dialog.content = content
-		@dialog.addButton Tree.labels.closeButton, => @close()
+			@dialog = new Dialog
+			@dialog.header = title
+			@dialog.content = content
+			@dialog.addButton Tree.labels.closeButton, => @close()
 
-		@maximize()
+			@maximize()
 
-		@initialized = true
+			@renderOutputs()
+
+			@initialized = true
 
 
 	renderBranch: (name, item, depth = 1) ->
@@ -130,8 +120,7 @@ class Tree
 
 
 	open: ->
-		if !@initialized
-			@prepare()
+		@prepare()
 
 		@dialog.show().then( =>
 			@dialog.header.find('input').focus()
@@ -174,8 +163,7 @@ class Tree
 				if total == selected then ch.prop('checked', true)
 		)
 
-		if @summaryElement != null
-			@refreshSummary()
+		@renderOutputs()
 
 
 	getContent: ->
@@ -222,6 +210,9 @@ class Tree
 		if el.get(0).nodeName.toLowerCase() != 'input' || el.attr('type') != 'text'
 			throw new Error 'Resule: invalid element'
 
+		if el.val() != ''
+			@defaults = JSON.parse(el.val())
+
 		@resultElement = el
 
 
@@ -245,7 +236,7 @@ class Tree
 		return result
 
 
-	refreshSummary: ->
+	renderOutputs: ->
 		if @resultElement != null
 			@resultElement.val(JSON.stringify(@serialize()))
 

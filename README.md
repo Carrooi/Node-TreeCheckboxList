@@ -9,17 +9,25 @@ Changelog is in the bottom of this readme.
 
 ## Usage
 
-html:
-```
-<a href="#" id="myOpener">Open</a>
-```
-
-js:
 ```
 $(function() {
 
 	var Tree = require('tree-checkbox-list');
-	var tree = new Tree($('#myOpener'), '/data.json', 'click');
+	var tree = new Tree('/data.json');
+
+	tree.data = {
+		"first": {
+			"title": "First item"
+		},
+		"second": {
+			"title": "Second item",
+			"items": {
+				"second_first": {
+					"title": "First item in second section"
+				}
+			}
+		}
+	}
 
 	// ....
 
@@ -28,34 +36,17 @@ $(function() {
 });
 ```
 
-data.json:
-```
-{
-	"first": {
-		"title": "First item"
-	},
-	"second": {
-		"title": "Second item",
-		"items": {
-			"second_first": {
-				"title": "First item in second section"
-			}
-		}
-	}
-}
-```
-
-When you creating new instance of Tree object, you just have to set element, which will trigger `open` action of your tree.
-Second argument is optional and it is address of json with your data (loads with [browser-http](https://npmjs.org/package/browser-http) package).
-Of course you can set data directly into `data` property in your tree object.
-
-```
-tree.data = { /* my custom data object */ };
-```
-
-Third argument is name of event which triggers open action. Argument is also optional and default is `click`.
-
 Method `getSelection()` returns items from `data` object which were selected.
+
+## Default values
+
+```
+tree.defaults = [
+	'first', 'second_first'
+];
+```
+
+Default values is just plain array with names of checked items.
 
 ## Get array with names
 
@@ -67,6 +58,9 @@ var selected = tree.serialize();
 
 You can automatize this by setting resultElement. It can be only text input and after every change, stringified array
 of names will be added into this input.
+
+Also if you set this result element and it has got some value in it, tree-checkbox-list will parse it like JSON and pass it
+into the `defaults` value (see below).
 
 ```
 tree.setResultElement($('#resultInput'));
@@ -89,11 +83,26 @@ tree.setSummaryElement($('#summaryInput'));
 Another option is set summary into `div` element. This will render `ul` list into it with list of selected items with
 `Remove` link.
 
+## Immediate rendering
+
+Summary is rendered after tree-checkbox-list is open for the first time, but it will be probably better to render it
+immediately. Just call method `prepare`.
+
+```
+tree.prepare();
+```
+
 ## Example of modal dialog
 
 ![dialog](https://raw.github.com/sakren/node-tree-checkbox-list/master/example.png)
 
 ## Changelog list
+
+* 1.2.0
+	+ Default value from result element
+	+ Removed dependency on some stupid opener
+	+ Outputs are rendered in `prepare` method
+	+ Removed loading data via http
 
 * 1.1.1
 	+ Head title wrapped into span

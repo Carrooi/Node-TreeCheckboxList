@@ -24,7 +24,6 @@
 	},
 	"main": "./lib/Tree.js",
 	"dependencies": {
-		"browser-http": "latest",
 		"modal-dialog": "latest"
 	}
 }
