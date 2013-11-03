@@ -1,0 +1,42 @@
+{
+	"type": {
+		"title": "Type",
+		"items": {
+			"pc": "PC",
+			"laptop": "Laptop"
+		}
+	},
+	"other": {
+		"title": "Other devices",
+		"items": {
+			"mobile": "Mobile",
+			"tablet": "Tablet",
+			"pda": "PDA"
+		}
+	},
+	"os": {
+		"title": "Operating system",
+		"items": {
+			"pc": {
+				"title": "PC",
+				"items": {
+					"win": "Windows",
+					"mac": "Mac OS X",
+					"linux": "Linux",
+					"other": "Other"
+				}
+			},
+			"mobile": {
+				"title": "Mobile",
+				"items": {
+					"android": "Android",
+					"ios": "iOS",
+					"windowsPhone": "Windows phone",
+					"symbian": "Symbian",
+					"blackBerry": "BlackBerry",
+					"other": "Other"
+				}
+			}
+		}
+	}
+}
