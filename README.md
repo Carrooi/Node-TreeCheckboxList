@@ -13,7 +13,7 @@ Changelog is in the bottom of this readme.
 $(function() {
 
 	var Tree = require('tree-checkbox-list');
-	var tree = new Tree('/data.json');
+	var tree = new Tree(window.jQuery);
 
 	tree.data = {
 		"first": {
@@ -97,6 +97,9 @@ tree.prepare();
 ![dialog](https://raw.github.com/sakren/node-tree-checkbox-list/master/example.png)
 
 ## Changelog list
+
+* 1.3.0
+	+ Added tests
 
 * 1.2.0
 	+ Default value from result element
