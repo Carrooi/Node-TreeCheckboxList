@@ -25,5 +25,12 @@
 	"main": "./lib/Tree.js",
 	"dependencies": {
 		"modal-dialog": "latest"
+	},
+	"devDependencies": {
+		"chai": "~1.8.1",
+		"mocha": "~1.14.0"
+	},
+	"scripts": {
+		"test": "cd ./test; mocha-phantomjs ./index.html;"
 	}
 }

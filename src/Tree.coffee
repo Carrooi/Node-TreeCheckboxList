@@ -1,5 +1,6 @@
-try $ = require 'jquery' catch err then $ = window.jQuery
 Dialog = require 'modal-dialog'
+
+$ = null
 
 class Tree
 
@@ -35,7 +36,15 @@ class Tree
 	title: 'Select'
 
 
-	constructor:  ->
+	constructor: (jquery = null)  ->
+		if jquery == null
+			try jquery = require 'jquery' catch err then jquery = window.jQuery		# deprecated
+
+		if !jquery
+			throw new Error 'jquery is not defined.'
+
+		$ = jquery
+
 		Tree.counter++
 
 		@defaults = []
