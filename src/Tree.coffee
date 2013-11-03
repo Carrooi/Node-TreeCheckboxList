@@ -108,7 +108,7 @@ class Tree
 			name: @name + '[]'
 			checked: @defaults.indexOf(name) != -1
 			'data-title': item.title
-			change: (e) => @validateCheckbox($(e.target))
+			change: (e) => @changeSelection($(e.target).attr('value'), false)
 		).appendTo(line)
 
 		$('<label>',
@@ -162,6 +162,25 @@ class Tree
 		return @getContent().find('input[type="checkbox"]:checked')
 
 
+	changeSelection: (name, change = true) ->
+		if Object.prototype.toString.call(name) == '[object Array]'
+			for n in name
+				@changeSelection(n)
+
+			return @
+
+		checkbox = @getContent().find('input[type="checkbox"][value="' + name + '"]')
+		if checkbox.length == 0
+			throw new Error 'Item ' + name + ' was not found.'
+
+		if change
+			checkbox.prop('checked', !checkbox.prop('checked'))
+
+		@validateCheckbox(checkbox)
+
+		return @
+
+
 	validateCheckbox: (checkbox) ->
 		checked = checkbox.is(':checked')
 
@@ -180,7 +199,7 @@ class Tree
 
 
 	getContent: ->
-		return @dialog.content
+		return $(@dialog.content)
 
 
 	minimize: ->
@@ -264,7 +283,7 @@ class Tree
 					count++
 
 					li = $('<li>',
-						html: item.title
+						html: item.title + ' '
 					)
 					$('<a>',
 						html: Tree.labels.summaryRemove,

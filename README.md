@@ -100,6 +100,7 @@ tree.prepare();
 
 * 1.3.0
 	+ Added tests
+	+ Many optimizations
 
 * 1.2.0
 	+ Default value from result element

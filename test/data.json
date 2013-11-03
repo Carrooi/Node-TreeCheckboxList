@@ -23,7 +23,7 @@
 					"win": { "title": "Windows" },
 					"mac": { "title": "Mac OS X" },
 					"linux": { "title": "Linux" },
-					"other": { "title": "Other" }
+					"otherOs": { "title": "Other" }
 				}
 			},
 			"mobileOs": {
