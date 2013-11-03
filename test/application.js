@@ -13258,6 +13258,64 @@
 	require._setMeta({"modal-dialog":{"base":"","path":"lib/Dialog.js"},"overlay":{"base":"node_modules/overlay","path":"node_modules/overlay/lib/Overlay.js"},"q":{"base":"node_modules/q","path":"node_modules/q/q.js"},"content-ready":{"base":"node_modules/content-ready","path":"node_modules/content-ready/lib/Ready.js"}});
 	
 
+}, '/test/data.json': function(exports, module) {
+
+	/** node globals **/
+	var require = function(name) {return window.require(name, '/test/data.json');};
+	require.resolve = function(name, parent) {if (parent === null) {parent = '/test/data.json';} return window.require.resolve(name, parent);};
+	require.define = function(bundle) {window.require.define(bundle);};
+	require.cache = window.require.cache;
+	var __filename = '/test/data.json';
+	var __dirname = '/test';
+	var process = {cwd: function() {return '/';}, argv: ['node', '/test/data.json'], env: {}};
+
+	/** code **/
+	module.exports = (function() {
+	return {
+		"type": {
+			"title": "Type",
+			"items": {
+				"pc": "PC",
+				"laptop": "Laptop"
+			}
+		},
+		"other": {
+			"title": "Other devices",
+			"items": {
+				"mobile": "Mobile",
+				"tablet": "Tablet",
+				"pda": "PDA"
+			}
+		},
+		"os": {
+			"title": "Operating system",
+			"items": {
+				"pc": {
+					"title": "PC",
+					"items": {
+						"win": "Windows",
+						"mac": "Mac OS X",
+						"linux": "Linux",
+						"other": "Other"
+					}
+				},
+				"mobile": {
+					"title": "Mobile",
+					"items": {
+						"android": "Android",
+						"ios": "iOS",
+						"windowsPhone": "Windows phone",
+						"symbian": "Symbian",
+						"blackBerry": "BlackBerry",
+						"other": "Other"
+					}
+				}
+			}
+		}
+	}
+	}).call(this);
+	
+
 }, '/package.json': function(exports, module) {
 
 	/** node globals **/
@@ -13302,6 +13360,9 @@
 		"devDependencies": {
 			"chai": "~1.8.1",
 			"mocha": "~1.14.0"
+		},
+		"scripts": {
+			"test": "cd ./test; mocha-phantomjs ./index.html;"
 		}
 	}
 	}).call(this);

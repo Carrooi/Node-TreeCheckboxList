@@ -5,7 +5,8 @@
 			"application": "./test/application.js",
 			"modules": [
 				"./src/*.coffee",
-				"modal-dialog/*.js"
+				"modal-dialog/*.js",
+				"./test/data.json"
 			]
 		}
 	}
