@@ -28,7 +28,7 @@ describe 'Tree checkbox list', ->
 
 		it 'should open modal dialog', (done) ->
 			tree.open().then( ->
-				expect(tree.getContent().find('input[type="checkbox"]').length).to.be.equal(20)
+				expect(tree.getContent().find('input[type="checkbox"]').length).to.be.equal(19)
 				done()
 			)
 
@@ -62,7 +62,7 @@ describe 'Tree checkbox list', ->
 			checked = tree.getContent().find('input[type="checkbox"]:checked')
 			values = []
 			checked.each( -> values.push($(@).val()))
-			expect(checked.length).to.be.equal(7)
+			expect(checked.length).to.be.equal(6)
 			expect(values).to.be.eql([
 				'mobileOs'
 				'android'
@@ -70,7 +70,6 @@ describe 'Tree checkbox list', ->
 				'windowsPhone'
 				'symbian'
 				'blackBerry'
-				'other'
 			])
 
 	describe '#minimize()', ->
@@ -93,22 +92,47 @@ describe 'Tree checkbox list', ->
 				tree.minimize()
 				tree.maximize()
 				checked = tree.getContent().find('input[type="checkbox"]:checked')
-				expect(checked.length).to.be.equal(7)
+				expect(checked.length).to.be.equal(6)
 				done()
 			)
 
 	describe '#getSelection()', ->
 
-		it 'should return minimized selected items', (done) ->
-			tree.open().then( ->
-				tree.changeSelection(['pc', 'pda', 'mobileOs'])
-				selected = tree.getSelection()
-				expect(selected).to.be.eql(
-					pc: {title: 'PC'}
-					pda: {title: 'PDA'}
-					mobileOs: {title: 'Mobile'}
-				)
-				done()
+		beforeEach( (done) ->
+			tree.open().then( -> done())
+		)
+
+		it 'should return minimized selected items', ->
+			tree.changeSelection(['pc', 'pda', 'mobileOs'])
+			selected = tree.getSelection()
+			expect(selected).to.be.eql(
+				pc: {title: 'PC', items: {}, checked: true}
+				pda: {title: 'PDA', items: {}, checked: true}
+				mobileOs: {title: 'Mobile', items: {}, checked: true}
+			)
+
+		it 'should return full result of selected items', ->
+			tree.changeSelection(['type', 'pda', 'symbian', 'android'])
+			selected = tree.getSelection(true)
+			expect(selected).to.be.eql(
+				type:
+					title: 'Type'
+					items: {}
+					checked: true
+				other:
+					title: 'Other devices'
+					items: {pda: {title: 'PDA', items: {}, checked: true}}
+					checked: false
+				os:
+					title: 'Operating system'
+					items:
+						mobileOs:
+							title: 'Mobile'
+							items:
+								symbian: {title: 'Symbian', items: {}, checked: true}
+								android: {title: 'Android', items: {}, checked: true}
+							checked: false
+					checked: false
 			)
 
 	describe '#serialize()', ->

@@ -148,13 +148,17 @@ class Tree
 		return checkbox.parent().children('ul').find('li input[type="checkbox"]' + appendSelector)
 
 
-	getParents: (checkbox) ->
+	getParents: (checkbox, reversed = false) ->
 		parents = []
+
 		checkbox.parents('li.tree-checkbox-list-item').each( (i, li) ->
 			if i > 0
 				li = $(li)
 				parents.push(li.children('input[type="checkbox"]'))
 		)
+
+		if reversed then parents = parents.reverse()
+
 		return $(parents)
 
 
@@ -248,14 +252,49 @@ class Tree
 		@resultElement = el
 
 
-	getSelection: ->
-		@minimize()
+	getSelection: (full = false) ->
 		result = {}
-		@getChecked().each( (i, checkbox) ->
-			checkbox = $(checkbox)
-			result[checkbox.val()] =
-				title: checkbox.attr('data-title')
-		)
+		@minimize()
+
+		if full
+			@getChecked().each( (i, checkbox) =>
+				checkbox = $(checkbox)
+				parents = @getParents(checkbox, true)
+
+				if parents.length == 0
+					result[checkbox.val()] =
+						title: checkbox.attr('data-title')
+						items: {}
+						checked: true
+				else
+					actual = result
+					parents.each( (i, parent) ->
+						parent = $(parent)
+
+						if typeof actual[parent.val()] == 'undefined'
+							actual[parent.val()] =
+								title: parent.attr('data-title')
+								items: {}
+								checked: parent.prop('checked')
+
+						actual = actual[parent.val()].items
+
+						if parents.length - 1 == i
+							actual[checkbox.val()] =
+								title: checkbox.attr('data-title')
+								items: {}
+								checked: true
+					)
+			)
+		else
+			@getChecked().each( (i, checkbox) ->
+				checkbox = $(checkbox)
+				result[checkbox.val()] =
+					title: checkbox.attr('data-title')
+					items: {}
+					checked: true
+			)
+
 		@maximize()
 		return result
 

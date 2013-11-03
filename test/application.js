@@ -2708,8 +2708,11 @@
 	      return checkbox.parent().children('ul').find('li input[type="checkbox"]' + appendSelector);
 	    };
 	
-	    Tree.prototype.getParents = function(checkbox) {
+	    Tree.prototype.getParents = function(checkbox, reversed) {
 	      var parents;
+	      if (reversed == null) {
+	        reversed = false;
+	      }
 	      parents = [];
 	      checkbox.parents('li.tree-checkbox-list-item').each(function(i, li) {
 	        if (i > 0) {
@@ -2717,6 +2720,9 @@
 	          return parents.push(li.children('input[type="checkbox"]'));
 	        }
 	      });
+	      if (reversed) {
+	        parents = parents.reverse();
+	      }
 	      return $(parents);
 	    };
 	
@@ -2823,16 +2829,57 @@
 	      return this.resultElement = el;
 	    };
 	
-	    Tree.prototype.getSelection = function() {
-	      var result;
-	      this.minimize();
+	    Tree.prototype.getSelection = function(full) {
+	      var result,
+	        _this = this;
+	      if (full == null) {
+	        full = false;
+	      }
 	      result = {};
-	      this.getChecked().each(function(i, checkbox) {
-	        checkbox = $(checkbox);
-	        return result[checkbox.val()] = {
-	          title: checkbox.attr('data-title')
-	        };
-	      });
+	      this.minimize();
+	      if (full) {
+	        this.getChecked().each(function(i, checkbox) {
+	          var actual, parents;
+	          checkbox = $(checkbox);
+	          parents = _this.getParents(checkbox, true);
+	          if (parents.length === 0) {
+	            return result[checkbox.val()] = {
+	              title: checkbox.attr('data-title'),
+	              items: {},
+	              checked: true
+	            };
+	          } else {
+	            actual = result;
+	            return parents.each(function(i, parent) {
+	              parent = $(parent);
+	              if (typeof actual[parent.val()] === 'undefined') {
+	                actual[parent.val()] = {
+	                  title: parent.attr('data-title'),
+	                  items: {},
+	                  checked: parent.prop('checked')
+	                };
+	              }
+	              actual = actual[parent.val()].items;
+	              if (parents.length - 1 === i) {
+	                return actual[checkbox.val()] = {
+	                  title: checkbox.attr('data-title'),
+	                  items: {},
+	                  checked: true
+	                };
+	              }
+	            });
+	          }
+	        });
+	      } else {
+	        this.getChecked().each(function(i, checkbox) {
+	          checkbox = $(checkbox);
+	          return result[checkbox.val()] = {
+	            title: checkbox.attr('data-title'),
+	            items: {},
+	            checked: true
+	          };
+	        });
+	      }
 	      this.maximize();
 	      return result;
 	    };
@@ -12115,8 +12162,7 @@
 						"ios": { "title": "iOS" },
 						"windowsPhone": { "title": "Windows phone" },
 						"symbian": { "title": "Symbian" },
-						"blackBerry": { "title": "BlackBerry" },
-						"other": { "title": "Other" }
+						"blackBerry": { "title": "BlackBerry" }
 					}
 				}
 			}
@@ -12174,7 +12220,7 @@
 	    describe('#open()', function() {
 	      return it('should open modal dialog', function(done) {
 	        return tree.open().then(function() {
-	          expect(tree.getContent().find('input[type="checkbox"]').length).to.be.equal(20);
+	          expect(tree.getContent().find('input[type="checkbox"]').length).to.be.equal(19);
 	          return done();
 	        });
 	      });
@@ -12215,8 +12261,8 @@
 	        checked.each(function() {
 	          return values.push($(this).val());
 	        });
-	        expect(checked.length).to.be.equal(7);
-	        return expect(values).to.be.eql(['mobileOs', 'android', 'ios', 'windowsPhone', 'symbian', 'blackBerry', 'other']);
+	        expect(checked.length).to.be.equal(6);
+	        return expect(values).to.be.eql(['mobileOs', 'android', 'ios', 'windowsPhone', 'symbian', 'blackBerry']);
 	      });
 	    });
 	    describe('#minimize()', function() {
@@ -12240,29 +12286,83 @@
 	          tree.minimize();
 	          tree.maximize();
 	          checked = tree.getContent().find('input[type="checkbox"]:checked');
-	          expect(checked.length).to.be.equal(7);
+	          expect(checked.length).to.be.equal(6);
 	          return done();
 	        });
 	      });
 	    });
 	    describe('#getSelection()', function() {
-	      return it('should return minimized selected items', function(done) {
+	      beforeEach(function(done) {
 	        return tree.open().then(function() {
-	          var selected;
-	          tree.changeSelection(['pc', 'pda', 'mobileOs']);
-	          selected = tree.getSelection();
-	          expect(selected).to.be.eql({
-	            pc: {
-	              title: 'PC'
-	            },
-	            pda: {
-	              title: 'PDA'
-	            },
-	            mobileOs: {
-	              title: 'Mobile'
-	            }
-	          });
 	          return done();
+	        });
+	      });
+	      it('should return minimized selected items', function() {
+	        var selected;
+	        tree.changeSelection(['pc', 'pda', 'mobileOs']);
+	        selected = tree.getSelection();
+	        return expect(selected).to.be.eql({
+	          pc: {
+	            title: 'PC',
+	            items: {},
+	            checked: true
+	          },
+	          pda: {
+	            title: 'PDA',
+	            items: {},
+	            checked: true
+	          },
+	          mobileOs: {
+	            title: 'Mobile',
+	            items: {},
+	            checked: true
+	          }
+	        });
+	      });
+	      return it('should return full result of selected items', function() {
+	        var selected;
+	        tree.changeSelection(['type', 'pda', 'symbian', 'android']);
+	        selected = tree.getSelection(true);
+	        debugger;
+	        return expect(selected).to.be.eql({
+	          type: {
+	            title: 'Type',
+	            items: {},
+	            checked: true
+	          },
+	          other: {
+	            title: 'Other devices',
+	            items: {
+	              pda: {
+	                title: 'PDA',
+	                items: {},
+	                checked: true
+	              }
+	            },
+	            checked: false
+	          },
+	          os: {
+	            title: 'Operating system',
+	            items: {
+	              mobileOs: {
+	                title: 'Mobile',
+	                items: {
+	                  symbian: {
+	                    title: 'Symbian',
+	                    items: {},
+	                    checked: true
+	                  },
+	                  android: {
+	                    title: 'Android',
+	                    items: {},
+	                    checked: true
+	                  }
+	                },
+	                checked: false
+	              }
+	            },
+	            checked: false
+	          }
 	        });
 	      });
 	    });
@@ -12284,7 +12384,8 @@
 	        });
 	      });
 	      afterEach(function() {
-	        return $('#testElements input[name="summary"]').val('');
+	        $('#testElements input[name="summary"]').val('');
+	        return $('#testElements .summary').html('');
 	      });
 	      it('should render summary into input', function() {
 	        var el;
@@ -12300,7 +12401,7 @@
 	        tree.changeSelection(['pc', 'pda', 'linux', 'android']);
 	        return expect(el.val()).to.be.equal('PC, PDA, Linux, ...');
 	      });
-	      return it('should render summary into div', function() {
+	      return it.skip('should render summary into div', function() {
 	        var el;
 	        el = $('#testElements .summary');
 	        tree.setSummaryElement(el);
@@ -12858,8 +12959,11 @@
 	      return checkbox.parent().children('ul').find('li input[type="checkbox"]' + appendSelector);
 	    };
 	
-	    Tree.prototype.getParents = function(checkbox) {
+	    Tree.prototype.getParents = function(checkbox, reversed) {
 	      var parents;
+	      if (reversed == null) {
+	        reversed = false;
+	      }
 	      parents = [];
 	      checkbox.parents('li.tree-checkbox-list-item').each(function(i, li) {
 	        if (i > 0) {
@@ -12867,6 +12971,9 @@
 	          return parents.push(li.children('input[type="checkbox"]'));
 	        }
 	      });
+	      if (reversed) {
+	        parents = parents.reverse();
+	      }
 	      return $(parents);
 	    };
 	
@@ -12973,16 +13080,57 @@
 	      return this.resultElement = el;
 	    };
 	
-	    Tree.prototype.getSelection = function() {
-	      var result;
-	      this.minimize();
+	    Tree.prototype.getSelection = function(full) {
+	      var result,
+	        _this = this;
+	      if (full == null) {
+	        full = false;
+	      }
 	      result = {};
-	      this.getChecked().each(function(i, checkbox) {
-	        checkbox = $(checkbox);
-	        return result[checkbox.val()] = {
-	          title: checkbox.attr('data-title')
-	        };
-	      });
+	      this.minimize();
+	      if (full) {
+	        this.getChecked().each(function(i, checkbox) {
+	          var actual, parents;
+	          checkbox = $(checkbox);
+	          parents = _this.getParents(checkbox, true);
+	          if (parents.length === 0) {
+	            return result[checkbox.val()] = {
+	              title: checkbox.attr('data-title'),
+	              items: {},
+	              checked: true
+	            };
+	          } else {
+	            actual = result;
+	            return parents.each(function(i, parent) {
+	              parent = $(parent);
+	              if (typeof actual[parent.val()] === 'undefined') {
+	                actual[parent.val()] = {
+	                  title: parent.attr('data-title'),
+	                  items: {},
+	                  checked: parent.prop('checked')
+	                };
+	              }
+	              actual = actual[parent.val()].items;
+	              if (parents.length - 1 === i) {
+	                return actual[checkbox.val()] = {
+	                  title: checkbox.attr('data-title'),
+	                  items: {},
+	                  checked: true
+	                };
+	              }
+	            });
+	          }
+	        });
+	      } else {
+	        this.getChecked().each(function(i, checkbox) {
+	          checkbox = $(checkbox);
+	          return result[checkbox.val()] = {
+	            title: checkbox.attr('data-title'),
+	            items: {},
+	            checked: true
+	          };
+	        });
+	      }
 	      this.maximize();
 	      return result;
 	    };

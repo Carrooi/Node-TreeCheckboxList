@@ -38,6 +38,13 @@ $(function() {
 
 Method `getSelection()` returns items from `data` object which were selected.
 
+If you need to get selected items with their full paths (like in your data variable), just call `getSelection` method with
+true argument
+
+```
+var selected = tree.getSelection(true);
+```
+
 ## Default values
 
 ```
@@ -101,6 +108,7 @@ tree.prepare();
 * 1.3.0
 	+ Added tests
 	+ Many optimizations
+	+ getSelection method can return items with full paths
 
 * 1.2.0
 	+ Default value from result element

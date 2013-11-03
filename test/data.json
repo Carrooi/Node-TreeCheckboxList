@@ -33,8 +33,7 @@
 					"ios": { "title": "iOS" },
 					"windowsPhone": { "title": "Windows phone" },
 					"symbian": { "title": "Symbian" },
-					"blackBerry": { "title": "BlackBerry" },
-					"other": { "title": "Other" }
+					"blackBerry": { "title": "BlackBerry" }
 				}
 			}
 		}
