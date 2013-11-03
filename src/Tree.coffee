@@ -261,11 +261,14 @@ class Tree
 				checkbox = $(checkbox)
 				parents = @getParents(checkbox, true)
 
+				# first level selected item
 				if parents.length == 0
 					result[checkbox.val()] =
 						title: checkbox.attr('data-title')
 						items: {}
 						checked: true
+
+				# other items
 				else
 					actual = result
 					parents.each( (i, parent) ->
@@ -279,6 +282,7 @@ class Tree
 
 						actual = actual[parent.val()].items
 
+						# add item itself into its last parent
 						if parents.length - 1 == i
 							actual[checkbox.val()] =
 								title: checkbox.attr('data-title')
@@ -299,10 +303,24 @@ class Tree
 		return result
 
 
-	serialize: ->
-		result = []
-		for name, item of @getSelection()
-			result.push(name)
+	serialize: (full = false) ->
+		if full
+			result = {}
+
+			helper = (subResult, item) ->
+				for n, i of item.items
+					if typeof subResult[n] == 'undefined'
+						subResult[n] = {}
+
+					helper(subResult[n], i)
+
+			for name, item of @getSelection(true)
+				result[name] = {}
+				helper(result[name], item)
+		else
+			result = []
+			for name, item of @getSelection()
+				result.push(name)
 
 		return result
 

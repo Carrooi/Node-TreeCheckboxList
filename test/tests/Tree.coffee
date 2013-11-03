@@ -112,7 +112,7 @@ describe 'Tree checkbox list', ->
 			)
 
 		it 'should return full result of selected items', ->
-			tree.changeSelection(['type', 'pda', 'symbian', 'android'])
+			tree.changeSelection(['type', 'pda', 'android', 'symbian'])
 			selected = tree.getSelection(true)
 			expect(selected).to.be.eql(
 				type:
@@ -129,20 +129,34 @@ describe 'Tree checkbox list', ->
 						mobileOs:
 							title: 'Mobile'
 							items:
-								symbian: {title: 'Symbian', items: {}, checked: true}
 								android: {title: 'Android', items: {}, checked: true}
+								symbian: {title: 'Symbian', items: {}, checked: true}
 							checked: false
 					checked: false
 			)
 
 	describe '#serialize()', ->
 
-		it 'should return minimized array with selected items names', (done) ->
-			tree.open().then( ->
-				tree.changeSelection(['pc', 'pda', 'mobileOs'])
-				selected = tree.serialize()
-				expect(selected).to.be.eql(['pc', 'pda', 'mobileOs'])
-				done()
+		beforeEach( (done) ->
+			tree.open().then( -> done())
+		)
+
+		it 'should return minimized array with selected items names', ->
+			tree.changeSelection(['pc', 'pda', 'mobileOs'])
+			selected = tree.serialize()
+			expect(selected).to.be.eql(['pc', 'pda', 'mobileOs'])
+
+		it 'should return serialized results with paths of selected items', ->
+			tree.changeSelection(['type', 'pda', 'symbian', 'android'])
+			selected = tree.serialize(true)
+			expect(selected).to.be.eql(
+				os:
+					mobileOs:
+						android: {}
+						symbian: {}
+				other:
+					pda: {}
+				type: {}
 			)
 
 	describe '#setSummaryElement()', ->

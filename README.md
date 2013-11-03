@@ -61,6 +61,15 @@ If you want to send data via form, you can get just array with names.
 
 ```
 var selected = tree.serialize();
+
+// now you can pass this variable to JSON.stringify method and add it to input
+```
+
+Just like with `getSection` method, here you can also get fully expanded object (not array) of selected items and their
+parents.
+
+```
+var selected = tree.serialize(true);
 ```
 
 You can automatize this by setting resultElement. It can be only text input and after every change, stringified array
@@ -108,7 +117,7 @@ tree.prepare();
 * 1.3.0
 	+ Added tests
 	+ Many optimizations
-	+ getSelection method can return items with full paths
+	+ `getSelection` and `serialize` method can return items with full paths
 
 * 1.2.0
 	+ Default value from result element

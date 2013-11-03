@@ -2884,13 +2884,39 @@
 	      return result;
 	    };
 	
-	    Tree.prototype.serialize = function() {
-	      var item, name, result, _ref;
-	      result = [];
-	      _ref = this.getSelection();
-	      for (name in _ref) {
-	        item = _ref[name];
-	        result.push(name);
+	    Tree.prototype.serialize = function(full) {
+	      var helper, item, name, result, _ref, _ref1;
+	      if (full == null) {
+	        full = false;
+	      }
+	      if (full) {
+	        result = {};
+	        helper = function(subResult, item) {
+	          var i, n, _ref, _results;
+	          _ref = item.items;
+	          _results = [];
+	          for (n in _ref) {
+	            i = _ref[n];
+	            if (typeof subResult[n] === 'undefined') {
+	              subResult[n] = {};
+	            }
+	            _results.push(helper(subResult[n], i));
+	          }
+	          return _results;
+	        };
+	        _ref = this.getSelection(true);
+	        for (name in _ref) {
+	          item = _ref[name];
+	          result[name] = {};
+	          helper(result[name], item);
+	        }
+	      } else {
+	        result = [];
+	        _ref1 = this.getSelection();
+	        for (name in _ref1) {
+	          item = _ref1[name];
+	          result.push(name);
+	        }
 	      }
 	      return result;
 	    };
@@ -12321,9 +12347,8 @@
 	      });
 	      return it('should return full result of selected items', function() {
 	        var selected;
-	        tree.changeSelection(['type', 'pda', 'symbian', 'android']);
+	        tree.changeSelection(['type', 'pda', 'android', 'symbian']);
 	        selected = tree.getSelection(true);
-	        debugger;
 	        return expect(selected).to.be.eql({
 	          type: {
 	            title: 'Type',
@@ -12347,13 +12372,13 @@
 	              mobileOs: {
 	                title: 'Mobile',
 	                items: {
-	                  symbian: {
-	                    title: 'Symbian',
+	                  android: {
+	                    title: 'Android',
 	                    items: {},
 	                    checked: true
 	                  },
-	                  android: {
-	                    title: 'Android',
+	                  symbian: {
+	                    title: 'Symbian',
 	                    items: {},
 	                    checked: true
 	                  }
@@ -12367,13 +12392,32 @@
 	      });
 	    });
 	    describe('#serialize()', function() {
-	      return it('should return minimized array with selected items names', function(done) {
+	      beforeEach(function(done) {
 	        return tree.open().then(function() {
-	          var selected;
-	          tree.changeSelection(['pc', 'pda', 'mobileOs']);
-	          selected = tree.serialize();
-	          expect(selected).to.be.eql(['pc', 'pda', 'mobileOs']);
 	          return done();
+	        });
+	      });
+	      it('should return minimized array with selected items names', function() {
+	        var selected;
+	        tree.changeSelection(['pc', 'pda', 'mobileOs']);
+	        selected = tree.serialize();
+	        return expect(selected).to.be.eql(['pc', 'pda', 'mobileOs']);
+	      });
+	      return it('should return serialized results with paths of selected items', function() {
+	        var selected;
+	        tree.changeSelection(['type', 'pda', 'symbian', 'android']);
+	        selected = tree.serialize(true);
+	        return expect(selected).to.be.eql({
+	          os: {
+	            mobileOs: {
+	              android: {},
+	              symbian: {}
+	            }
+	          },
+	          other: {
+	            pda: {}
+	          },
+	          type: {}
 	        });
 	      });
 	    });
@@ -13135,13 +13179,39 @@
 	      return result;
 	    };
 	
-	    Tree.prototype.serialize = function() {
-	      var item, name, result, _ref;
-	      result = [];
-	      _ref = this.getSelection();
-	      for (name in _ref) {
-	        item = _ref[name];
-	        result.push(name);
+	    Tree.prototype.serialize = function(full) {
+	      var helper, item, name, result, _ref, _ref1;
+	      if (full == null) {
+	        full = false;
+	      }
+	      if (full) {
+	        result = {};
+	        helper = function(subResult, item) {
+	          var i, n, _ref, _results;
+	          _ref = item.items;
+	          _results = [];
+	          for (n in _ref) {
+	            i = _ref[n];
+	            if (typeof subResult[n] === 'undefined') {
+	              subResult[n] = {};
+	            }
+	            _results.push(helper(subResult[n], i));
+	          }
+	          return _results;
+	        };
+	        _ref = this.getSelection(true);
+	        for (name in _ref) {
+	          item = _ref[name];
+	          result[name] = {};
+	          helper(result[name], item);
+	        }
+	      } else {
+	        result = [];
+	        _ref1 = this.getSelection();
+	        for (name in _ref1) {
+	          item = _ref1[name];
+	          result.push(name);
+	        }
 	      }
 	      return result;
 	    };
