@@ -6,8 +6,16 @@
 			"modules": [
 				"./src/*.coffee",
 				"modal-dialog/*.js",
-				"./test/data.json"
-			]
+				"./test/data.json",
+				"./test/tests/*.coffee",
+				"events"
+			],
+			"run": [
+				"/test/tests/Tree.coffee"
+			],
+			"aliases": {
+				"tree-checkbox-list": "/src/Tree"
+			}
 		}
 	}
 }
