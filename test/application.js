@@ -2870,11 +2870,8 @@
 	              href: '#',
 	              'data-name': name,
 	              click: function(e) {
-	                var checkbox;
 	                e.preventDefault();
-	                checkbox = that.getContent().find('input[type="checkbox"][value="' + $(this).attr('data-name') + '"]');
-	                checkbox.prop('checked', false);
-	                return that.validateCheckbox(checkbox);
+	                return that.changeSelection($(this).attr('data-name'));
 	              }
 	            }).appendTo(li);
 	            if (count > 10) {
@@ -12287,8 +12284,7 @@
 	        });
 	      });
 	      afterEach(function() {
-	        $('#testElements input[name="summary"]').val('');
-	        return $('#testElements .summary').html('');
+	        return $('#testElements input[name="summary"]').val('');
 	      });
 	      it('should render summary into input', function() {
 	        var el;
@@ -12304,7 +12300,7 @@
 	        tree.changeSelection(['pc', 'pda', 'linux', 'android']);
 	        return expect(el.val()).to.be.equal('PC, PDA, Linux, ...');
 	      });
-	      return it.skip('should render summary into div', function() {
+	      return it('should render summary into div', function() {
 	        var el;
 	        el = $('#testElements .summary');
 	        tree.setSummaryElement(el);
@@ -13024,11 +13020,8 @@
 	              href: '#',
 	              'data-name': name,
 	              click: function(e) {
-	                var checkbox;
 	                e.preventDefault();
-	                checkbox = that.getContent().find('input[type="checkbox"][value="' + $(this).attr('data-name') + '"]');
-	                checkbox.prop('checked', false);
-	                return that.validateCheckbox(checkbox);
+	                return that.changeSelection($(this).attr('data-name'));
 	              }
 	            }).appendTo(li);
 	            if (count > 10) {

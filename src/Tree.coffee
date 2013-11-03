@@ -291,9 +291,7 @@ class Tree
 						'data-name': name
 						click: (e) ->
 							e.preventDefault()
-							checkbox = that.getContent().find('input[type="checkbox"][value="' + $(@).attr('data-name') + '"]')
-							checkbox.prop('checked', false)
-							that.validateCheckbox(checkbox)
+							that.changeSelection($(@).attr('data-name'))
 					).appendTo(li)
 					if count > 10
 						li.css(display: 'none').addClass('more')
