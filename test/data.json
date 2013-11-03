@@ -2,39 +2,39 @@
 	"type": {
 		"title": "Type",
 		"items": {
-			"pc": "PC",
-			"laptop": "Laptop"
+			"pc": { "title": "PC" },
+			"laptop": { "title": "Laptop" }
 		}
 	},
 	"other": {
 		"title": "Other devices",
 		"items": {
-			"mobile": "Mobile",
-			"tablet": "Tablet",
-			"pda": "PDA"
+			"mobile": { "title": "Mobile" },
+			"table": { "title": "Tablet" },
+			"pda": { "title": "PDA" }
 		}
 	},
 	"os": {
 		"title": "Operating system",
 		"items": {
-			"pc": {
+			"pcOs": {
 				"title": "PC",
 				"items": {
-					"win": "Windows",
-					"mac": "Mac OS X",
-					"linux": "Linux",
-					"other": "Other"
+					"win": { "title": "Windows" },
+					"mac": { "title": "Mac OS X" },
+					"linux": { "title": "Linux" },
+					"other": { "title": "Other" }
 				}
 			},
-			"mobile": {
+			"mobileOs": {
 				"title": "Mobile",
 				"items": {
-					"android": "Android",
-					"ios": "iOS",
-					"windowsPhone": "Windows phone",
-					"symbian": "Symbian",
-					"blackBerry": "BlackBerry",
-					"other": "Other"
+					"android": { "title": "Android" },
+					"ios": { "title": "iOS" },
+					"windowsPhone": { "title": "Windows phone" },
+					"symbian": { "title": "Symbian" },
+					"blackBerry": { "title": "BlackBerry" },
+					"other": { "title": "Other" }
 				}
 			}
 		}

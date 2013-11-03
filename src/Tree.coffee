@@ -1,4 +1,5 @@
 Dialog = require 'modal-dialog'
+Q = require 'q'
 
 $ = null
 
@@ -131,13 +132,16 @@ class Tree
 	open: ->
 		@prepare()
 
+		deferred = Q.defer()
 		@dialog.show().then( =>
 			@dialog.header.find('input').focus()
-		)
+			deferred.resolve(@)
+		).fail( (err) -> deferred.reject(err))
+		return deferred.promise
 
 
 	close: ->
-		@dialog.hide()
+		return @dialog.hide()
 
 
 	getChildren: (checkbox, appendSelector = '') ->
