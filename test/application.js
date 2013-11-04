@@ -2574,6 +2574,8 @@
 	
 	    Tree.prototype.resultElement = null;
 	
+	    Tree.prototype.resultElementFull = false;
+	
 	    Tree.prototype.initialized = false;
 	
 	    Tree.prototype.title = 'Select';
@@ -2823,7 +2825,8 @@
 	      return this.summaryElement = el;
 	    };
 	
-	    Tree.prototype.setResultElement = function(el) {
+	    Tree.prototype.setResultElement = function(el, resultElementFull) {
+	      this.resultElementFull = resultElementFull != null ? resultElementFull : this.resultElementFull;
 	      el = $(el);
 	      if (el.get(0).nodeName.toLowerCase() !== 'input' || el.attr('type') !== 'text') {
 	        throw new Error('Resule: invalid element');
@@ -2930,7 +2933,7 @@
 	      var count, helper, item, name, result, that, ul, _ref, _ref1,
 	        _this = this;
 	      if (this.resultElement !== null) {
-	        this.resultElement.val(JSON.stringify(this.serialize()));
+	        this.resultElement.val(JSON.stringify(this.serialize(this.resultElementFull)));
 	      }
 	      if (this.summaryElement !== null) {
 	        if (this.summaryElement.get(0).nodeName.toLowerCase() === 'div') {
@@ -12469,7 +12472,7 @@
 	        });
 	      });
 	    });
-	    return describe('#setSummaryElement()', function() {
+	    describe('#setSummaryElement()', function() {
 	      beforeEach(function(done) {
 	        return tree.open().then(function() {
 	          return done();
@@ -12552,6 +12555,45 @@
 	        tree.changeSelection(['pc', 'pda', 'linux', 'android']);
 	        el.find('a:first').click();
 	        return expect(el.find('li.hidden').length).to.be.equal(0);
+	      });
+	    });
+	    return describe('#setResultElement()', function() {
+	      beforeEach(function(done) {
+	        tree.open().then(function() {
+	          return done();
+	        });
+	        return tree.setResultElement($('#testElements input[name="result"]'));
+	      });
+	      afterEach(function() {
+	        return $('#testElements input[name="result"]').val('');
+	      });
+	      it('should render result into input element', function() {
+	        var val;
+	        tree.changeSelection(['pc', 'pda', 'linux', 'android']);
+	        val = $('#testElements input[name="result"]').val();
+	        return expect(JSON.parse(val)).to.be.eql(['pc', 'pda', 'linux', 'android']);
+	      });
+	      return it('should render full result into input element', function() {
+	        var val;
+	        tree.resultElementFull = true;
+	        tree.changeSelection(['pc', 'pda', 'linux', 'android']);
+	        val = $('#testElements input[name="result"]').val();
+	        return expect(JSON.parse(val)).to.be.eql({
+	          type: {
+	            pc: {}
+	          },
+	          other: {
+	            pda: {}
+	          },
+	          os: {
+	            pcOs: {
+	              linux: {}
+	            },
+	            mobileOs: {
+	              android: {}
+	            }
+	          }
+	        });
 	      });
 	    });
 	  });
@@ -12971,6 +13013,8 @@
 	
 	    Tree.prototype.resultElement = null;
 	
+	    Tree.prototype.resultElementFull = false;
+	
 	    Tree.prototype.initialized = false;
 	
 	    Tree.prototype.title = 'Select';
@@ -13220,7 +13264,8 @@
 	      return this.summaryElement = el;
 	    };
 	
-	    Tree.prototype.setResultElement = function(el) {
+	    Tree.prototype.setResultElement = function(el, resultElementFull) {
+	      this.resultElementFull = resultElementFull != null ? resultElementFull : this.resultElementFull;
 	      el = $(el);
 	      if (el.get(0).nodeName.toLowerCase() !== 'input' || el.attr('type') !== 'text') {
 	        throw new Error('Resule: invalid element');
@@ -13327,7 +13372,7 @@
 	      var count, helper, item, name, result, that, ul, _ref, _ref1,
 	        _this = this;
 	      if (this.resultElement !== null) {
-	        this.resultElement.val(JSON.stringify(this.serialize()));
+	        this.resultElement.val(JSON.stringify(this.serialize(this.resultElementFull)));
 	      }
 	      if (this.summaryElement !== null) {
 	        if (this.summaryElement.get(0).nodeName.toLowerCase() === 'div') {

@@ -235,3 +235,31 @@ describe 'Tree checkbox list', ->
 			tree.changeSelection(['pc', 'pda', 'linux', 'android'])
 			el.find('a:first').click()
 			expect(el.find('li.hidden').length).to.be.equal(0)
+
+	describe '#setResultElement()', ->
+
+		beforeEach( (done) ->
+			tree.open().then( -> done())
+			tree.setResultElement($('#testElements input[name="result"]'))
+		)
+
+		afterEach( ->
+			$('#testElements input[name="result"]').val('')
+		)
+
+		it 'should render result into input element', ->
+			tree.changeSelection(['pc', 'pda', 'linux', 'android'])
+			val = $('#testElements input[name="result"]').val()
+			expect(JSON.parse(val)).to.be.eql(['pc', 'pda', 'linux', 'android'])
+
+		it 'should render full result into input element', ->
+			tree.resultElementFull = true
+			tree.changeSelection(['pc', 'pda', 'linux', 'android'])
+			val = $('#testElements input[name="result"]').val()
+			expect(JSON.parse(val)).to.be.eql(
+				type: {pc: {}}
+				other: {pda: {}}
+				os:
+					pcOs: {linux: {}}
+					mobileOs: {android: {}}
+			)

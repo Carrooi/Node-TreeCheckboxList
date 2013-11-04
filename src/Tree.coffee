@@ -36,6 +36,8 @@ class Tree
 
 	resultElement: null
 
+	resultElementFull: false
+
 	initialized: false
 
 	title: 'Select'
@@ -245,7 +247,7 @@ class Tree
 		@summaryElement = el
 
 
-	setResultElement: (el) ->
+	setResultElement: (el, @resultElementFull = @resultElementFull) ->
 		el = $(el)
 		if el.get(0).nodeName.toLowerCase() != 'input' || el.attr('type') != 'text'
 			throw new Error 'Resule: invalid element'
@@ -331,7 +333,7 @@ class Tree
 
 	renderOutputs: ->
 		if @resultElement != null
-			@resultElement.val(JSON.stringify(@serialize()))
+			@resultElement.val(JSON.stringify(@serialize(@resultElementFull)))
 
 		if @summaryElement != null
 			if @summaryElement.get(0).nodeName.toLowerCase() == 'div'
