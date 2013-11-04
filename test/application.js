@@ -12486,7 +12486,8 @@
 	        });
 	      });
 	      afterEach(function() {
-	        return $('#testElements input[name="summary"]').val('');
+	        $('#testElements input[name="summary"]').val('');
+	        return $('#testElements .summary').html('');
 	      });
 	      it('should render summary into input', function() {
 	        var el;
@@ -12502,11 +12503,48 @@
 	        tree.changeSelection(['pc', 'pda', 'linux', 'android']);
 	        return expect(el.val()).to.be.equal('PC, PDA, Linux, ...');
 	      });
-	      return it.skip('should render summary into div', function() {
+	      it('should render summary into div', function() {
 	        var el;
 	        el = $('#testElements .summary');
 	        tree.setSummaryElement(el);
-	        return tree.changeSelection(['pc', 'pda', 'linux', 'android']);
+	        tree.changeSelection(['pc', 'pda', 'linux', 'android']);
+	        return expect(el.find('a[href="#"]').length).to.be.equal(9);
+	      });
+	      it('should remove last item from div summary', function() {
+	        var el, link;
+	        el = $('#testElements .summary');
+	        tree.setSummaryElement(el);
+	        tree.changeSelection(['pc', 'pda', 'linux', 'android']);
+	        link = el.find('a[data-name="pc"]');
+	        link.click();
+	        expect(el.find('a[href="#"]').length).to.be.equal(7);
+	        expect(el.find('a[data-name="pc"]').length).to.be.equal(0);
+	        return expect(el.find('a[data-name="type"]').length).to.be.equal(0);
+	      });
+	      it('should remove middle item from div summary', function() {
+	        var el, link;
+	        el = $('#testElements .summary');
+	        tree.setSummaryElement(el);
+	        tree.changeSelection(['pc', 'pda', 'linux', 'android']);
+	        link = el.find('a[data-name="pcOs"]');
+	        link.click();
+	        expect(el.find('a[href="#"]').length).to.be.equal(7);
+	        expect(el.find('a[data-name="pcOs"]').length).to.be.equal(0);
+	        return expect(el.find('a[data-name="linux"]').length).to.be.equal(0);
+	      });
+	      return it('should remove top item from div summary', function() {
+	        var el, link;
+	        el = $('#testElements .summary');
+	        tree.setSummaryElement(el);
+	        tree.changeSelection(['pc', 'pda', 'linux', 'android']);
+	        link = el.find('a[data-name="os"]');
+	        link.click();
+	        expect(el.find('a[href="#"]').length).to.be.equal(4);
+	        expect(el.find('a[data-name="os"]').length).to.be.equal(0);
+	        expect(el.find('a[data-name="pcOs"]').length).to.be.equal(0);
+	        expect(el.find('a[data-name="linux"]').length).to.be.equal(0);
+	        expect(el.find('a[data-name="mobileOs"]').length).to.be.equal(0);
+	        return expect(el.find('a[data-name="android"]').length).to.be.equal(0);
 	      });
 	    });
 	  });
