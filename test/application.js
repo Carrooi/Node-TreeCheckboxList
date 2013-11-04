@@ -2927,7 +2927,8 @@
 	    };
 	
 	    Tree.prototype.renderOutputs = function() {
-	      var count, helper, item, name, result, that, ul, _ref, _ref1;
+	      var count, helper, item, name, result, that, ul, _ref, _ref1,
+	        _this = this;
 	      if (this.resultElement !== null) {
 	        this.resultElement.val(JSON.stringify(this.serialize()));
 	      }
@@ -2935,11 +2936,19 @@
 	        if (this.summaryElement.get(0).nodeName.toLowerCase() === 'div') {
 	          ul = $('<ul>');
 	          that = this;
+	          count = 0;
 	          helper = function(name, item) {
 	            var i, line, n, sub, _ref;
+	            count++;
 	            line = $('<li>', {
 	              html: item.title + ' '
 	            });
+	            if (count > _this.summaryMaxItems.div) {
+	              line.css({
+	                display: 'none'
+	              });
+	              line.addClass('more');
+	            }
 	            $('<a>', {
 	              html: Tree.labels.summaryRemove,
 	              href: '#',
@@ -2978,6 +2987,22 @@
 	            ul.append(helper(name, item));
 	          }
 	          this.summaryElement.html('');
+	          if (count > this.summaryMaxItems.div) {
+	            $('<a>', {
+	              href: '#',
+	              'class': 'hidden',
+	              html: Tree.labels.summaryShow,
+	              click: function(e) {
+	                e.preventDefault();
+	                if ($(this).hasClass('hidden')) {
+	                  $(this).html(Tree.labels.summaryHide).removeClass('hidden').addClass('showen');
+	                } else {
+	                  $(this).html(Tree.labels.summaryShow).removeClass('showen').addClass('hidden');
+	                }
+	                return ul.find('li.more').toggle();
+	              }
+	            }).appendTo(this.summaryElement);
+	          }
 	          return ul.appendTo(this.summaryElement);
 	          /*ul = $('<ul>')
 	          				count = 0
@@ -12490,8 +12515,7 @@
 	        });
 	      });
 	      afterEach(function() {
-	        $('#testElements input[name="summary"]').val('');
-	        return $('#testElements .summary').html('');
+	        return $('#testElements input[name="summary"]').val('');
 	      });
 	      it('should render summary into input', function() {
 	        var el;
@@ -12536,7 +12560,7 @@
 	        expect(el.find('a[data-name="pcOs"]').length).to.be.equal(0);
 	        return expect(el.find('a[data-name="linux"]').length).to.be.equal(0);
 	      });
-	      return it('should remove top item from div summary', function() {
+	      it('should remove top item from div summary', function() {
 	        var el, link;
 	        el = $('#testElements .summary');
 	        tree.setSummaryElement(el);
@@ -12549,6 +12573,23 @@
 	        expect(el.find('a[data-name="linux"]').length).to.be.equal(0);
 	        expect(el.find('a[data-name="mobileOs"]').length).to.be.equal(0);
 	        return expect(el.find('a[data-name="android"]').length).to.be.equal(0);
+	      });
+	      it('should show just first 3 items in div summary', function() {
+	        var el;
+	        el = $('#testElements .summary');
+	        tree.summaryMaxItems.div = 3;
+	        tree.setSummaryElement(el);
+	        tree.changeSelection(['pc', 'pda', 'linux', 'android']);
+	        return expect(el.find('ul a[href="#"]:visible').length).to.be.equal(3);
+	      });
+	      return it('should show hidden selected items in div summary', function() {
+	        var el;
+	        el = $('#testElements .summary');
+	        tree.summaryMaxItems.div = 3;
+	        tree.setSummaryElement(el);
+	        tree.changeSelection(['pc', 'pda', 'linux', 'android']);
+	        el.find('a:first').click();
+	        return expect(el.find('ul a[href="#"]:visible').length).to.be.equal(9);
 	      });
 	    });
 	  });
@@ -13321,7 +13362,8 @@
 	    };
 	
 	    Tree.prototype.renderOutputs = function() {
-	      var count, helper, item, name, result, that, ul, _ref, _ref1;
+	      var count, helper, item, name, result, that, ul, _ref, _ref1,
+	        _this = this;
 	      if (this.resultElement !== null) {
 	        this.resultElement.val(JSON.stringify(this.serialize()));
 	      }
@@ -13329,11 +13371,19 @@
 	        if (this.summaryElement.get(0).nodeName.toLowerCase() === 'div') {
 	          ul = $('<ul>');
 	          that = this;
+	          count = 0;
 	          helper = function(name, item) {
 	            var i, line, n, sub, _ref;
+	            count++;
 	            line = $('<li>', {
 	              html: item.title + ' '
 	            });
+	            if (count > _this.summaryMaxItems.div) {
+	              line.css({
+	                display: 'none'
+	              });
+	              line.addClass('more');
+	            }
 	            $('<a>', {
 	              html: Tree.labels.summaryRemove,
 	              href: '#',
@@ -13372,6 +13422,22 @@
 	            ul.append(helper(name, item));
 	          }
 	          this.summaryElement.html('');
+	          if (count > this.summaryMaxItems.div) {
+	            $('<a>', {
+	              href: '#',
+	              'class': 'hidden',
+	              html: Tree.labels.summaryShow,
+	              click: function(e) {
+	                e.preventDefault();
+	                if ($(this).hasClass('hidden')) {
+	                  $(this).html(Tree.labels.summaryHide).removeClass('hidden').addClass('showen');
+	                } else {
+	                  $(this).html(Tree.labels.summaryShow).removeClass('showen').addClass('hidden');
+	                }
+	                return ul.find('li.more').toggle();
+	              }
+	            }).appendTo(this.summaryElement);
+	          }
 	          return ul.appendTo(this.summaryElement);
 	          /*ul = $('<ul>')
 	          				count = 0

@@ -220,3 +220,18 @@ describe 'Tree checkbox list', ->
 			expect(el.find('a[data-name="linux"]').length).to.be.equal(0)
 			expect(el.find('a[data-name="mobileOs"]').length).to.be.equal(0)
 			expect(el.find('a[data-name="android"]').length).to.be.equal(0)
+
+		it 'should show just first 3 items in div summary', ->
+			el = $('#testElements .summary')
+			tree.summaryMaxItems.div = 3
+			tree.setSummaryElement(el)
+			tree.changeSelection(['pc', 'pda', 'linux', 'android'])
+			expect(el.find('ul a[href="#"]:visible').length).to.be.equal(3)
+
+		it 'should show hidden selected items in div summary', ->
+			el = $('#testElements .summary')
+			tree.summaryMaxItems.div = 3
+			tree.setSummaryElement(el)
+			tree.changeSelection(['pc', 'pda', 'linux', 'android'])
+			el.find('a:first').click()
+			expect(el.find('ul a[href="#"]:visible').length).to.be.equal(9)

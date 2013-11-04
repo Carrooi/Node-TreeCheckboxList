@@ -337,11 +337,18 @@ class Tree
 			if @summaryElement.get(0).nodeName.toLowerCase() == 'div'
 				ul = $('<ul>')
 				that = @
+				count = 0
 
-				helper = (name, item) ->
+				helper = (name, item) =>
+					count++
+
 					line = $('<li>',
 						html: item.title + ' '
 					)
+
+					if count > @summaryMaxItems.div
+						line.css(display: 'none')
+						line.addClass('more')
 
 					$('<a>',
 						html: Tree.labels.summaryRemove
@@ -377,6 +384,21 @@ class Tree
 					ul.append(helper(name, item))
 
 				@summaryElement.html('')
+
+				if count > @summaryMaxItems.div
+					$('<a>',
+						href: '#'
+						'class': 'hidden'
+						html: Tree.labels.summaryShow
+						click: (e) ->
+							e.preventDefault()
+							if $(@).hasClass('hidden')
+								$(@).html(Tree.labels.summaryHide).removeClass('hidden').addClass('showen')
+							else
+								$(@).html(Tree.labels.summaryShow).removeClass('showen').addClass('hidden')
+							ul.find('li.more').toggle()
+					).appendTo(@summaryElement)
+
 				ul.appendTo(@summaryElement)
 
 				###ul = $('<ul>')
