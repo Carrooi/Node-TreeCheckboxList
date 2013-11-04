@@ -48,8 +48,8 @@ describe 'Tree checkbox list', ->
 
 	describe '#changeSelection()', ->
 
-		beforeEach( (done) ->
-			tree.open().then( -> done())
+		beforeEach( ->
+			tree.prepare()
 		)
 
 		it 'should throw an error if item does not exists', ->
@@ -78,32 +78,28 @@ describe 'Tree checkbox list', ->
 
 	describe '#minimize()', ->
 
-		it 'should uncheck all items in group', (done) ->
-			tree.open().then( ->
-				tree.changeSelection('mobileOs')
-				tree.minimize()
-				checked = tree.getContent().find('input[type="checkbox"]:checked')
-				expect(checked.length).to.be.equal(1)
-				expect(checked.val()).to.be.equal('mobileOs')
-				done()
-			)
+		it 'should uncheck all items in group', ->
+			tree.prepare()
+			tree.changeSelection('mobileOs')
+			tree.minimize()
+			checked = tree.getContent().find('input[type="checkbox"]:checked')
+			expect(checked.length).to.be.equal(1)
+			expect(checked.val()).to.be.equal('mobileOs')
 
 	describe '#maximize()', ->
 
-		it 'should check all items in minimized group', (done) ->
-			tree.open().then( ->
-				tree.changeSelection('mobileOs')
-				tree.minimize()
-				tree.maximize()
-				checked = tree.getContent().find('input[type="checkbox"]:checked')
-				expect(checked.length).to.be.equal(6)
-				done()
-			)
+		it 'should check all items in minimized group', ->
+			tree.prepare()
+			tree.changeSelection('mobileOs')
+			tree.minimize()
+			tree.maximize()
+			checked = tree.getContent().find('input[type="checkbox"]:checked')
+			expect(checked.length).to.be.equal(6)
 
 	describe '#getSelection()', ->
 
-		beforeEach( (done) ->
-			tree.open().then( -> done())
+		beforeEach( ->
+			tree.prepare()
 		)
 
 		it 'should return minimized selected items', ->
@@ -141,8 +137,8 @@ describe 'Tree checkbox list', ->
 
 	describe '#serialize()', ->
 
-		beforeEach( (done) ->
-			tree.open().then( -> done())
+		beforeEach( ->
+			tree.prepare()
 		)
 
 		it 'should return minimized array with selected items names', ->
@@ -165,8 +161,8 @@ describe 'Tree checkbox list', ->
 
 	describe '#setSummaryElement()', ->
 
-		beforeEach( (done) ->
-			tree.open().then( -> done())
+		beforeEach( ->
+			tree.prepare()
 		)
 
 		afterEach( ->
@@ -246,30 +242,25 @@ describe 'Tree checkbox list', ->
 			$('#testElements input[name="result"]').val('')
 		)
 
-		it 'should render result into input element', (done) ->
-			tree.open().then( ->
-				tree.setResultElement($('#testElements input[name="result"]'))
-				tree.changeSelection(['pc', 'pda', 'linux', 'android'])
-				val = $('#testElements input[name="result"]').val()
-				expect(JSON.parse(val)).to.be.eql(['pc', 'pda', 'linux', 'android'])
-				done()
-			)
+		it 'should render result into input element', ->
+			tree.prepare()
+			tree.setResultElement($('#testElements input[name="result"]'))
+			tree.changeSelection(['pc', 'pda', 'linux', 'android'])
+			val = $('#testElements input[name="result"]').val()
+			expect(JSON.parse(val)).to.be.eql(['pc', 'pda', 'linux', 'android'])
 
-		it 'should render full result into input element', (done) ->
-			tree.open().then( ->
-				tree.setResultElement($('#testElements input[name="result"]'), true)
-				tree.changeSelection(['pc', 'pda', 'linux', 'android'])
-				val = $('#testElements input[name="result"]').val()
-				expect(JSON.parse(val)).to.be.eql(
-					type: {pc: {}}
-					other: {pda: {}}
-					os:
-						pcOs: {linux: {}}
-						mobileOs: {android: {}}
-				)
-				done()
+		it 'should render full result into input element', ->
+			tree.prepare()
+			tree.setResultElement($('#testElements input[name="result"]'), true)
+			tree.changeSelection(['pc', 'pda', 'linux', 'android'])
+			val = $('#testElements input[name="result"]').val()
+			expect(JSON.parse(val)).to.be.eql(
+				type: {pc: {}}
+				other: {pda: {}}
+				os:
+					pcOs: {linux: {}}
+					mobileOs: {android: {}}
 			)
-
 
 		it 'should set default values from non empty result element', ->
 			el = $('#testElements input[name="result"]')

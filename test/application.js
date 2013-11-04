@@ -12340,10 +12340,8 @@
 	      });
 	    });
 	    describe('#changeSelection()', function() {
-	      beforeEach(function(done) {
-	        return tree.open().then(function() {
-	          return done();
-	        });
+	      beforeEach(function() {
+	        return tree.prepare();
 	      });
 	      it('should throw an error if item does not exists', function() {
 	        return expect(function() {
@@ -12370,36 +12368,30 @@
 	      });
 	    });
 	    describe('#minimize()', function() {
-	      return it('should uncheck all items in group', function(done) {
-	        return tree.open().then(function() {
-	          var checked;
-	          tree.changeSelection('mobileOs');
-	          tree.minimize();
-	          checked = tree.getContent().find('input[type="checkbox"]:checked');
-	          expect(checked.length).to.be.equal(1);
-	          expect(checked.val()).to.be.equal('mobileOs');
-	          return done();
-	        });
+	      return it('should uncheck all items in group', function() {
+	        var checked;
+	        tree.prepare();
+	        tree.changeSelection('mobileOs');
+	        tree.minimize();
+	        checked = tree.getContent().find('input[type="checkbox"]:checked');
+	        expect(checked.length).to.be.equal(1);
+	        return expect(checked.val()).to.be.equal('mobileOs');
 	      });
 	    });
 	    describe('#maximize()', function() {
-	      return it('should check all items in minimized group', function(done) {
-	        return tree.open().then(function() {
-	          var checked;
-	          tree.changeSelection('mobileOs');
-	          tree.minimize();
-	          tree.maximize();
-	          checked = tree.getContent().find('input[type="checkbox"]:checked');
-	          expect(checked.length).to.be.equal(6);
-	          return done();
-	        });
+	      return it('should check all items in minimized group', function() {
+	        var checked;
+	        tree.prepare();
+	        tree.changeSelection('mobileOs');
+	        tree.minimize();
+	        tree.maximize();
+	        checked = tree.getContent().find('input[type="checkbox"]:checked');
+	        return expect(checked.length).to.be.equal(6);
 	      });
 	    });
 	    describe('#getSelection()', function() {
-	      beforeEach(function(done) {
-	        return tree.open().then(function() {
-	          return done();
-	        });
+	      beforeEach(function() {
+	        return tree.prepare();
 	      });
 	      it('should return minimized selected items', function() {
 	        var selected;
@@ -12470,10 +12462,8 @@
 	      });
 	    });
 	    describe('#serialize()', function() {
-	      beforeEach(function(done) {
-	        return tree.open().then(function() {
-	          return done();
-	        });
+	      beforeEach(function() {
+	        return tree.prepare();
 	      });
 	      it('should return minimized array with selected items names', function() {
 	        var selected;
@@ -12500,10 +12490,8 @@
 	      });
 	    });
 	    describe('#setSummaryElement()', function() {
-	      beforeEach(function(done) {
-	        return tree.open().then(function() {
-	          return done();
-	        });
+	      beforeEach(function() {
+	        return tree.prepare();
 	      });
 	      afterEach(function() {
 	        $('#testElements input[name="summary"]').val('');
@@ -12588,39 +12576,35 @@
 	      afterEach(function() {
 	        return $('#testElements input[name="result"]').val('');
 	      });
-	      it('should render result into input element', function(done) {
-	        return tree.open().then(function() {
-	          var val;
-	          tree.setResultElement($('#testElements input[name="result"]'));
-	          tree.changeSelection(['pc', 'pda', 'linux', 'android']);
-	          val = $('#testElements input[name="result"]').val();
-	          expect(JSON.parse(val)).to.be.eql(['pc', 'pda', 'linux', 'android']);
-	          return done();
-	        });
+	      it('should render result into input element', function() {
+	        var val;
+	        tree.prepare();
+	        tree.setResultElement($('#testElements input[name="result"]'));
+	        tree.changeSelection(['pc', 'pda', 'linux', 'android']);
+	        val = $('#testElements input[name="result"]').val();
+	        return expect(JSON.parse(val)).to.be.eql(['pc', 'pda', 'linux', 'android']);
 	      });
-	      it('should render full result into input element', function(done) {
-	        return tree.open().then(function() {
-	          var val;
-	          tree.setResultElement($('#testElements input[name="result"]'), true);
-	          tree.changeSelection(['pc', 'pda', 'linux', 'android']);
-	          val = $('#testElements input[name="result"]').val();
-	          expect(JSON.parse(val)).to.be.eql({
-	            type: {
-	              pc: {}
+	      it('should render full result into input element', function() {
+	        var val;
+	        tree.prepare();
+	        tree.setResultElement($('#testElements input[name="result"]'), true);
+	        tree.changeSelection(['pc', 'pda', 'linux', 'android']);
+	        val = $('#testElements input[name="result"]').val();
+	        return expect(JSON.parse(val)).to.be.eql({
+	          type: {
+	            pc: {}
+	          },
+	          other: {
+	            pda: {}
+	          },
+	          os: {
+	            pcOs: {
+	              linux: {}
 	            },
-	            other: {
-	              pda: {}
-	            },
-	            os: {
-	              pcOs: {
-	                linux: {}
-	              },
-	              mobileOs: {
-	                android: {}
-	              }
+	            mobileOs: {
+	              android: {}
 	            }
-	          });
-	          return done();
+	          }
 	        });
 	      });
 	      it('should set default values from non empty result element', function() {
