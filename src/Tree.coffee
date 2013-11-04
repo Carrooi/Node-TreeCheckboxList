@@ -400,44 +400,6 @@ class Tree
 					).appendTo(@summaryElement)
 
 				ul.appendTo(@summaryElement)
-
-				###ul = $('<ul>')
-				count = 0
-				that = @
-				for name, item of data
-					count++
-
-					li = $('<li>',
-						html: item.title + ' '
-					)
-					$('<a>',
-						html: Tree.labels.summaryRemove,
-						href: '#'
-						'data-name': name
-						click: (e) ->
-							e.preventDefault()
-							that.changeSelection($(@).attr('data-name'))
-					).appendTo(li)
-					if count > 10
-						li.css(display: 'none').addClass('more')
-
-					li.appendTo(ul)
-
-				@summaryElement.html('')
-				if count > 10
-					$('<a>',
-						href: '#'
-						'class': 'hidden'
-						html: Tree.labels.summaryShow
-						click: (e) ->
-							e.preventDefault()
-							if $(@).hasClass('hidden')
-								$(@).html(Tree.labels.summaryHide).removeClass('hidden').addClass('showen')
-							else
-								$(@).html(Tree.labels.summaryShow).removeClass('showen').addClass('hidden')
-							ul.find('li.more').toggle()
-					).appendTo(@summaryElement)
-				ul.appendTo(@summaryElement)###
 			else
 				count = 0
 				result = []
