@@ -38,6 +38,8 @@ class Tree
 
 	resultElementFull: false
 
+	resultElementMaximized: false
+
 	initialized: false
 
 	title: 'Select'
@@ -247,7 +249,7 @@ class Tree
 		@summaryElement = el
 
 
-	setResultElement: (el, @resultElementFull = @resultElementFull) ->
+	setResultElement: (el, @resultElementFull = @resultElementFull, @resultElementMaximized = @resultElementMaximized) ->
 		el = $(el)
 		if el.get(0).nodeName.toLowerCase() != 'input' || el.attr('type') != 'text'
 			throw new Error 'Resule: invalid element'
@@ -274,9 +276,10 @@ class Tree
 		@resultElement = el
 
 
-	getSelection: (full = false) ->
+	getSelection: (full = false, minimized = true) ->
 		result = {}
-		@minimize()
+
+		@minimize() if minimized is on
 
 		if full
 			@getChecked().each( (i, checkbox) =>
@@ -321,11 +324,12 @@ class Tree
 					checked: true
 			)
 
-		@maximize()
+		@maximize() if minimized is on
+
 		return result
 
 
-	serialize: (full = false) ->
+	serialize: (full = false, minimized = true) ->
 		if full
 			result = {}
 
@@ -336,12 +340,12 @@ class Tree
 
 					helper(subResult[n], i)
 
-			for name, item of @getSelection(true)
+			for name, item of @getSelection(true, minimized)
 				result[name] = {}
 				helper(result[name], item)
 		else
 			result = []
-			for name, item of @getSelection()
+			for name, item of @getSelection(false, minimized)
 				result.push(name)
 
 		return result
@@ -349,7 +353,7 @@ class Tree
 
 	renderOutputs: ->
 		if @resultElement != null
-			@resultElement.val(JSON.stringify(@serialize(@resultElementFull)))
+			@resultElement.val(JSON.stringify(@serialize(@resultElementFull, !@resultElementMaximized)))
 
 		if @summaryElement != null
 			if @summaryElement.get(0).nodeName.toLowerCase() == 'div'

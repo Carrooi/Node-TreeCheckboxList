@@ -2576,6 +2576,8 @@
 	
 	    Tree.prototype.resultElementFull = false;
 	
+	    Tree.prototype.resultElementMaximized = false;
+	
 	    Tree.prototype.initialized = false;
 	
 	    Tree.prototype.title = 'Select';
@@ -2825,9 +2827,10 @@
 	      return this.summaryElement = el;
 	    };
 	
-	    Tree.prototype.setResultElement = function(el, resultElementFull) {
+	    Tree.prototype.setResultElement = function(el, resultElementFull, resultElementMaximized) {
 	      var helpers, items, name, result, value;
 	      this.resultElementFull = resultElementFull != null ? resultElementFull : this.resultElementFull;
+	      this.resultElementMaximized = resultElementMaximized != null ? resultElementMaximized : this.resultElementMaximized;
 	      el = $(el);
 	      if (el.get(0).nodeName.toLowerCase() !== 'input' || el.attr('type') !== 'text') {
 	        throw new Error('Resule: invalid element');
@@ -2860,14 +2863,19 @@
 	      return this.resultElement = el;
 	    };
 	
-	    Tree.prototype.getSelection = function(full) {
+	    Tree.prototype.getSelection = function(full, minimized) {
 	      var result,
 	        _this = this;
 	      if (full == null) {
 	        full = false;
 	      }
+	      if (minimized == null) {
+	        minimized = true;
+	      }
 	      result = {};
-	      this.minimize();
+	      if (minimized === true) {
+	        this.minimize();
+	      }
 	      if (full) {
 	        this.getChecked().each(function(i, checkbox) {
 	          var actual, parents;
@@ -2911,14 +2919,19 @@
 	          };
 	        });
 	      }
-	      this.maximize();
+	      if (minimized === true) {
+	        this.maximize();
+	      }
 	      return result;
 	    };
 	
-	    Tree.prototype.serialize = function(full) {
+	    Tree.prototype.serialize = function(full, minimized) {
 	      var helper, item, name, result, _ref, _ref1;
 	      if (full == null) {
 	        full = false;
+	      }
+	      if (minimized == null) {
+	        minimized = true;
 	      }
 	      if (full) {
 	        result = {};
@@ -2935,7 +2948,7 @@
 	          }
 	          return _results;
 	        };
-	        _ref = this.getSelection(true);
+	        _ref = this.getSelection(true, minimized);
 	        for (name in _ref) {
 	          item = _ref[name];
 	          result[name] = {};
@@ -2943,7 +2956,7 @@
 	        }
 	      } else {
 	        result = [];
-	        _ref1 = this.getSelection();
+	        _ref1 = this.getSelection(false, minimized);
 	        for (name in _ref1) {
 	          item = _ref1[name];
 	          result.push(name);
@@ -2956,7 +2969,7 @@
 	      var count, helper, item, name, result, that, ul, _ref, _ref1,
 	        _this = this;
 	      if (this.resultElement !== null) {
-	        this.resultElement.val(JSON.stringify(this.serialize(this.resultElementFull)));
+	        this.resultElement.val(JSON.stringify(this.serialize(this.resultElementFull, !this.resultElementMaximized)));
 	      }
 	      if (this.summaryElement !== null) {
 	        if (this.summaryElement.get(0).nodeName.toLowerCase() === 'div') {
@@ -12415,6 +12428,12 @@
 	          }
 	        });
 	      });
+	      it('should return maximized selected items', function() {
+	        var selected;
+	        tree.changeSelection(['type', 'pda', 'mobileOs']);
+	        selected = tree.getSelection(false, false);
+	        return console.log(selected);
+	      });
 	      return it('should return full result of selected items', function() {
 	        var selected;
 	        tree.changeSelection(['type', 'pda', 'android', 'symbian']);
@@ -13043,6 +13062,8 @@
 	
 	    Tree.prototype.resultElementFull = false;
 	
+	    Tree.prototype.resultElementMaximized = false;
+	
 	    Tree.prototype.initialized = false;
 	
 	    Tree.prototype.title = 'Select';
@@ -13292,9 +13313,10 @@
 	      return this.summaryElement = el;
 	    };
 	
-	    Tree.prototype.setResultElement = function(el, resultElementFull) {
+	    Tree.prototype.setResultElement = function(el, resultElementFull, resultElementMaximized) {
 	      var helpers, items, name, result, value;
 	      this.resultElementFull = resultElementFull != null ? resultElementFull : this.resultElementFull;
+	      this.resultElementMaximized = resultElementMaximized != null ? resultElementMaximized : this.resultElementMaximized;
 	      el = $(el);
 	      if (el.get(0).nodeName.toLowerCase() !== 'input' || el.attr('type') !== 'text') {
 	        throw new Error('Resule: invalid element');
@@ -13327,14 +13349,19 @@
 	      return this.resultElement = el;
 	    };
 	
-	    Tree.prototype.getSelection = function(full) {
+	    Tree.prototype.getSelection = function(full, minimized) {
 	      var result,
 	        _this = this;
 	      if (full == null) {
 	        full = false;
 	      }
+	      if (minimized == null) {
+	        minimized = true;
+	      }
 	      result = {};
-	      this.minimize();
+	      if (minimized === true) {
+	        this.minimize();
+	      }
 	      if (full) {
 	        this.getChecked().each(function(i, checkbox) {
 	          var actual, parents;
@@ -13378,14 +13405,19 @@
 	          };
 	        });
 	      }
-	      this.maximize();
+	      if (minimized === true) {
+	        this.maximize();
+	      }
 	      return result;
 	    };
 	
-	    Tree.prototype.serialize = function(full) {
+	    Tree.prototype.serialize = function(full, minimized) {
 	      var helper, item, name, result, _ref, _ref1;
 	      if (full == null) {
 	        full = false;
+	      }
+	      if (minimized == null) {
+	        minimized = true;
 	      }
 	      if (full) {
 	        result = {};
@@ -13402,7 +13434,7 @@
 	          }
 	          return _results;
 	        };
-	        _ref = this.getSelection(true);
+	        _ref = this.getSelection(true, minimized);
 	        for (name in _ref) {
 	          item = _ref[name];
 	          result[name] = {};
@@ -13410,7 +13442,7 @@
 	        }
 	      } else {
 	        result = [];
-	        _ref1 = this.getSelection();
+	        _ref1 = this.getSelection(false, minimized);
 	        for (name in _ref1) {
 	          item = _ref1[name];
 	          result.push(name);
@@ -13423,7 +13455,7 @@
 	      var count, helper, item, name, result, that, ul, _ref, _ref1,
 	        _this = this;
 	      if (this.resultElement !== null) {
-	        this.resultElement.val(JSON.stringify(this.serialize(this.resultElementFull)));
+	        this.resultElement.val(JSON.stringify(this.serialize(this.resultElementFull, !this.resultElementMaximized)));
 	      }
 	      if (this.summaryElement !== null) {
 	        if (this.summaryElement.get(0).nodeName.toLowerCase() === 'div') {
