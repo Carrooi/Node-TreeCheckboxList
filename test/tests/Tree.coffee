@@ -1,8 +1,12 @@
 Tree = require 'tree-checkbox-list'
 
+Q = require 'q'
+
 data = require '../data'
 $ = window.jQuery
 tree = null
+
+Q.stopUnhandledRejectionTracking()
 
 describe 'Tree checkbox list', ->
 
@@ -238,28 +242,45 @@ describe 'Tree checkbox list', ->
 
 	describe '#setResultElement()', ->
 
-		beforeEach( (done) ->
-			tree.open().then( -> done())
-			tree.setResultElement($('#testElements input[name="result"]'))
-		)
-
 		afterEach( ->
 			$('#testElements input[name="result"]').val('')
 		)
 
-		it 'should render result into input element', ->
-			tree.changeSelection(['pc', 'pda', 'linux', 'android'])
-			val = $('#testElements input[name="result"]').val()
-			expect(JSON.parse(val)).to.be.eql(['pc', 'pda', 'linux', 'android'])
-
-		it 'should render full result into input element', ->
-			tree.resultElementFull = true
-			tree.changeSelection(['pc', 'pda', 'linux', 'android'])
-			val = $('#testElements input[name="result"]').val()
-			expect(JSON.parse(val)).to.be.eql(
-				type: {pc: {}}
-				other: {pda: {}}
-				os:
-					pcOs: {linux: {}}
-					mobileOs: {android: {}}
+		it 'should render result into input element', (done) ->
+			tree.open().then( ->
+				tree.setResultElement($('#testElements input[name="result"]'))
+				tree.changeSelection(['pc', 'pda', 'linux', 'android'])
+				val = $('#testElements input[name="result"]').val()
+				expect(JSON.parse(val)).to.be.eql(['pc', 'pda', 'linux', 'android'])
+				done()
 			)
+
+		it 'should render full result into input element', (done) ->
+			tree.open().then( ->
+				tree.setResultElement($('#testElements input[name="result"]'), true)
+				tree.changeSelection(['pc', 'pda', 'linux', 'android'])
+				val = $('#testElements input[name="result"]').val()
+				expect(JSON.parse(val)).to.be.eql(
+					type: {pc: {}}
+					other: {pda: {}}
+					os:
+						pcOs: {linux: {}}
+						mobileOs: {android: {}}
+				)
+				done()
+			)
+
+
+		it 'should set default values from non empty result element', ->
+			el = $('#testElements input[name="result"]')
+			el.val('["pc", "pda", "linux", "android"]')
+			tree.setResultElement(el)
+			tree.prepare()
+			expect(tree.getContent().find('input[type="checkbox"]:checked').length).to.be.equal(4)
+
+		it 'should set default from full result in result element', ->
+			el = $('#testElements input[name="result"]')
+			el.val('{"type": {"pc": {}}, "other": {"pda": {}}, "os": {"pcOs": {"linux": {}}, "mobileOs": {"android": {}}}}')
+			tree.setResultElement(el)
+			tree.prepare()
+			expect(tree.getContent().find('input[type="checkbox"]:checked').length).to.be.equal(4)

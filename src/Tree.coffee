@@ -253,7 +253,23 @@ class Tree
 			throw new Error 'Resule: invalid element'
 
 		if el.val() != ''
-			@defaults = JSON.parse(el.val())
+			value = JSON.parse(el.val())
+			if Object.prototype.toString.call(value) == '[object Object]'
+				result = []
+
+				helpers = (name, items) ->
+					if $.isEmptyObject(items)
+						result.push(name)
+					else
+						for n, i of items
+							helpers(n, i)
+
+				for name, items of value
+					helpers(name, items)
+
+				value = result
+
+			@defaults = value
 
 		@resultElement = el
 

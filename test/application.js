@@ -2826,13 +2826,36 @@
 	    };
 	
 	    Tree.prototype.setResultElement = function(el, resultElementFull) {
+	      var helpers, items, name, result, value;
 	      this.resultElementFull = resultElementFull != null ? resultElementFull : this.resultElementFull;
 	      el = $(el);
 	      if (el.get(0).nodeName.toLowerCase() !== 'input' || el.attr('type') !== 'text') {
 	        throw new Error('Resule: invalid element');
 	      }
 	      if (el.val() !== '') {
-	        this.defaults = JSON.parse(el.val());
+	        value = JSON.parse(el.val());
+	        if (Object.prototype.toString.call(value) === '[object Object]') {
+	          result = [];
+	          helpers = function(name, items) {
+	            var i, n, _results;
+	            if ($.isEmptyObject(items)) {
+	              return result.push(name);
+	            } else {
+	              _results = [];
+	              for (n in items) {
+	                i = items[n];
+	                _results.push(helpers(n, i));
+	              }
+	              return _results;
+	            }
+	          };
+	          for (name in value) {
+	            items = value[name];
+	            helpers(name, items);
+	          }
+	          value = result;
+	        }
+	        this.defaults = value;
 	      }
 	      return this.resultElement = el;
 	    };
@@ -12261,15 +12284,19 @@
 
 	/** code **/
 	(function() {
-	  var $, Tree, data, tree;
+	  var $, Q, Tree, data, tree;
 	
 	  Tree = require('tree-checkbox-list');
+	
+	  Q = require('q');
 	
 	  data = require('../data');
 	
 	  $ = window.jQuery;
 	
 	  tree = null;
+	
+	  Q.stopUnhandledRejectionTracking();
 	
 	  describe('Tree checkbox list', function() {
 	    beforeEach(function() {
@@ -12558,42 +12585,59 @@
 	      });
 	    });
 	    return describe('#setResultElement()', function() {
-	      beforeEach(function(done) {
-	        tree.open().then(function() {
-	          return done();
-	        });
-	        return tree.setResultElement($('#testElements input[name="result"]'));
-	      });
 	      afterEach(function() {
 	        return $('#testElements input[name="result"]').val('');
 	      });
-	      it('should render result into input element', function() {
-	        var val;
-	        tree.changeSelection(['pc', 'pda', 'linux', 'android']);
-	        val = $('#testElements input[name="result"]').val();
-	        return expect(JSON.parse(val)).to.be.eql(['pc', 'pda', 'linux', 'android']);
-	      });
-	      return it('should render full result into input element', function() {
-	        var val;
-	        tree.resultElementFull = true;
-	        tree.changeSelection(['pc', 'pda', 'linux', 'android']);
-	        val = $('#testElements input[name="result"]').val();
-	        return expect(JSON.parse(val)).to.be.eql({
-	          type: {
-	            pc: {}
-	          },
-	          other: {
-	            pda: {}
-	          },
-	          os: {
-	            pcOs: {
-	              linux: {}
-	            },
-	            mobileOs: {
-	              android: {}
-	            }
-	          }
+	      it('should render result into input element', function(done) {
+	        return tree.open().then(function() {
+	          var val;
+	          tree.setResultElement($('#testElements input[name="result"]'));
+	          tree.changeSelection(['pc', 'pda', 'linux', 'android']);
+	          val = $('#testElements input[name="result"]').val();
+	          expect(JSON.parse(val)).to.be.eql(['pc', 'pda', 'linux', 'android']);
+	          return done();
 	        });
+	      });
+	      it('should render full result into input element', function(done) {
+	        return tree.open().then(function() {
+	          var val;
+	          tree.setResultElement($('#testElements input[name="result"]'), true);
+	          tree.changeSelection(['pc', 'pda', 'linux', 'android']);
+	          val = $('#testElements input[name="result"]').val();
+	          expect(JSON.parse(val)).to.be.eql({
+	            type: {
+	              pc: {}
+	            },
+	            other: {
+	              pda: {}
+	            },
+	            os: {
+	              pcOs: {
+	                linux: {}
+	              },
+	              mobileOs: {
+	                android: {}
+	              }
+	            }
+	          });
+	          return done();
+	        });
+	      });
+	      it('should set default values from non empty result element', function() {
+	        var el;
+	        el = $('#testElements input[name="result"]');
+	        el.val('["pc", "pda", "linux", "android"]');
+	        tree.setResultElement(el);
+	        tree.prepare();
+	        return expect(tree.getContent().find('input[type="checkbox"]:checked').length).to.be.equal(4);
+	      });
+	      return it('should set default from full result in result element', function() {
+	        var el;
+	        el = $('#testElements input[name="result"]');
+	        el.val('{"type": {"pc": {}}, "other": {"pda": {}}, "os": {"pcOs": {"linux": {}}, "mobileOs": {"android": {}}}}');
+	        tree.setResultElement(el);
+	        tree.prepare();
+	        return expect(tree.getContent().find('input[type="checkbox"]:checked').length).to.be.equal(4);
 	      });
 	    });
 	  });
@@ -13265,13 +13309,36 @@
 	    };
 	
 	    Tree.prototype.setResultElement = function(el, resultElementFull) {
+	      var helpers, items, name, result, value;
 	      this.resultElementFull = resultElementFull != null ? resultElementFull : this.resultElementFull;
 	      el = $(el);
 	      if (el.get(0).nodeName.toLowerCase() !== 'input' || el.attr('type') !== 'text') {
 	        throw new Error('Resule: invalid element');
 	      }
 	      if (el.val() !== '') {
-	        this.defaults = JSON.parse(el.val());
+	        value = JSON.parse(el.val());
+	        if (Object.prototype.toString.call(value) === '[object Object]') {
+	          result = [];
+	          helpers = function(name, items) {
+	            var i, n, _results;
+	            if ($.isEmptyObject(items)) {
+	              return result.push(name);
+	            } else {
+	              _results = [];
+	              for (n in items) {
+	                i = items[n];
+	                _results.push(helpers(n, i));
+	              }
+	              return _results;
+	            }
+	          };
+	          for (name in value) {
+	            items = value[name];
+	            helpers(name, items);
+	          }
+	          value = result;
+	        }
+	        this.defaults = value;
 	      }
 	      return this.resultElement = el;
 	    };
