@@ -348,7 +348,7 @@ class Tree
 
 					if count > @summaryMaxItems.div
 						line.css(display: 'none')
-						line.addClass('more')
+						line.addClass('more').addClass('hidden')
 
 					$('<a>',
 						html: Tree.labels.summaryRemove
@@ -396,7 +396,7 @@ class Tree
 								$(@).html(Tree.labels.summaryHide).removeClass('hidden').addClass('showen')
 							else
 								$(@).html(Tree.labels.summaryShow).removeClass('showen').addClass('hidden')
-							ul.find('li.more').toggle()
+							ul.find('li.more').toggle().toggleClass('hidden')
 					).appendTo(@summaryElement)
 
 				ul.appendTo(@summaryElement)

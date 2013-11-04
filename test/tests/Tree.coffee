@@ -226,7 +226,7 @@ describe 'Tree checkbox list', ->
 			tree.summaryMaxItems.div = 3
 			tree.setSummaryElement(el)
 			tree.changeSelection(['pc', 'pda', 'linux', 'android'])
-			expect(el.find('ul a[href="#"]:visible').length).to.be.equal(3)
+			expect(el.find('li.hidden').length).to.be.equal(6)
 
 		it 'should show hidden selected items in div summary', ->
 			el = $('#testElements .summary')
@@ -234,4 +234,4 @@ describe 'Tree checkbox list', ->
 			tree.setSummaryElement(el)
 			tree.changeSelection(['pc', 'pda', 'linux', 'android'])
 			el.find('a:first').click()
-			expect(el.find('ul a[href="#"]:visible').length).to.be.equal(9)
+			expect(el.find('li.hidden').length).to.be.equal(0)
