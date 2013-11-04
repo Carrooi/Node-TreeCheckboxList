@@ -330,10 +330,52 @@ class Tree
 			@resultElement.val(JSON.stringify(@serialize()))
 
 		if @summaryElement != null
-			data = @getSelection()
-
 			if @summaryElement.get(0).nodeName.toLowerCase() == 'div'
 				ul = $('<ul>')
+				that = @
+
+				helper = (name, item) ->
+					line = $('<li>',
+						html: item.title + ' '
+					)
+
+					$('<a>',
+						html: Tree.labels.summaryRemove
+						href: '#'
+						'data-checked': item.checked
+						'data-name': name
+						click: (e) ->
+							e.preventDefault()
+							name = $(@).attr('data-name')
+							if $(@).attr('data-checked') == 'true'
+								that.changeSelection(name)
+							else
+								parent = that.getContent().find('input[type="checkbox"][value="' + name + '"]')
+								children = []
+								that.getChildren(parent, ':checked').each( (i, child) ->
+									children.push($(child).val())
+								)
+								that.changeSelection(children)
+
+					).appendTo(line)
+
+					if !$.isEmptyObject(item.items)
+						sub = $('<ul>')
+						for n, i of item.items
+							sub.append(helper(n, i))
+
+						sub.appendTo(line)
+
+					return line
+
+
+				for name, item of @getSelection(true)
+					ul.append(helper(name, item))
+
+				@summaryElement.html('')
+				ul.appendTo(@summaryElement)
+
+				###ul = $('<ul>')
 				count = 0
 				that = @
 				for name, item of data
@@ -369,12 +411,12 @@ class Tree
 								$(@).html(Tree.labels.summaryShow).removeClass('showen').addClass('hidden')
 							ul.find('li.more').toggle()
 					).appendTo(@summaryElement)
-				ul.appendTo(@summaryElement)
+				ul.appendTo(@summaryElement)###
 			else
 				count = 0
 				max = 3
 				result = []
-				for name, item of data
+				for name, item of @getSelection()
 					result.push(item.title)
 					count++
 					if count == max

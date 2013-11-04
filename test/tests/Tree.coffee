@@ -167,7 +167,7 @@ describe 'Tree checkbox list', ->
 
 		afterEach( ->
 			$('#testElements input[name="summary"]').val('')
-			$('#testElements .summary').html('')
+			#$('#testElements .summary').html('')
 		)
 
 		it 'should render summary into input', ->
@@ -185,4 +185,4 @@ describe 'Tree checkbox list', ->
 		it.skip 'should render summary into div', ->
 			el = $('#testElements .summary')
 			tree.setSummaryElement(el)
-			tree.changeSelection(['pc', 'pda', 'linux', 'mobileOs'])
+			tree.changeSelection(['pc', 'pda', 'linux', 'android'])

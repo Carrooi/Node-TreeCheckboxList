@@ -3,9 +3,11 @@
 Modal dialog with checkbox list in tree.
 Depends on jquery.
 
-## Changelog
+## Installation
 
-Changelog is in the bottom of this readme.
+```
+$ npm install tree-checkbox-list
+```
 
 ## Usage
 
@@ -112,12 +114,19 @@ tree.prepare();
 
 ![dialog](https://raw.github.com/sakren/node-tree-checkbox-list/master/example.png)
 
-## Changelog list
+## Tests
+
+```
+$ npm test
+```
+
+## Changelog
 
 * 1.3.0
 	+ Added tests
 	+ Many optimizations
 	+ `getSelection` and `serialize` method can return items with full paths
+	+ Summary in div element is rendered with full paths
 
 * 1.2.0
 	+ Default value from result element
