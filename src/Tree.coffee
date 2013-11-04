@@ -30,6 +30,10 @@ class Tree
 
 	summaryElement: null
 
+	summaryMaxItems:
+		input: 3
+		div: 10
+
 	resultElement: null
 
 	initialized: false
@@ -414,12 +418,11 @@ class Tree
 				ul.appendTo(@summaryElement)###
 			else
 				count = 0
-				max = 3
 				result = []
 				for name, item of @getSelection()
 					result.push(item.title)
 					count++
-					if count == max
+					if count == @summaryMaxItems.input
 						result.push('...')
 						break
 

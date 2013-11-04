@@ -127,6 +127,7 @@ $ npm test
 	+ Many optimizations
 	+ `getSelection` and `serialize` method can return items with full paths
 	+ Summary in div element is rendered with full paths
+	+ Max items in summary can be configured
 
 * 1.2.0
 	+ Default value from result element

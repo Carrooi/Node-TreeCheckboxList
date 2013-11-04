@@ -2567,6 +2567,11 @@
 	
 	    Tree.prototype.summaryElement = null;
 	
+	    Tree.prototype.summaryMaxItems = {
+	      input: 3,
+	      div: 10
+	    };
+	
 	    Tree.prototype.resultElement = null;
 	
 	    Tree.prototype.initialized = false;
@@ -2922,7 +2927,7 @@
 	    };
 	
 	    Tree.prototype.renderOutputs = function() {
-	      var count, helper, item, max, name, result, that, ul, _ref, _ref1;
+	      var count, helper, item, name, result, that, ul, _ref, _ref1;
 	      if (this.resultElement !== null) {
 	        this.resultElement.val(JSON.stringify(this.serialize()));
 	      }
@@ -3015,14 +3020,13 @@
 	
 	        } else {
 	          count = 0;
-	          max = 3;
 	          result = [];
 	          _ref1 = this.getSelection();
 	          for (name in _ref1) {
 	            item = _ref1[name];
 	            result.push(item.title);
 	            count++;
-	            if (count === max) {
+	            if (count === this.summaryMaxItems.input) {
 	              result.push('...');
 	              break;
 	            }
@@ -12957,6 +12961,11 @@
 	
 	    Tree.prototype.summaryElement = null;
 	
+	    Tree.prototype.summaryMaxItems = {
+	      input: 3,
+	      div: 10
+	    };
+	
 	    Tree.prototype.resultElement = null;
 	
 	    Tree.prototype.initialized = false;
@@ -13312,7 +13321,7 @@
 	    };
 	
 	    Tree.prototype.renderOutputs = function() {
-	      var count, helper, item, max, name, result, that, ul, _ref, _ref1;
+	      var count, helper, item, name, result, that, ul, _ref, _ref1;
 	      if (this.resultElement !== null) {
 	        this.resultElement.val(JSON.stringify(this.serialize()));
 	      }
@@ -13405,14 +13414,13 @@
 	
 	        } else {
 	          count = 0;
-	          max = 3;
 	          result = [];
 	          _ref1 = this.getSelection();
 	          for (name in _ref1) {
 	            item = _ref1[name];
 	            result.push(item.title);
 	            count++;
-	            if (count === max) {
+	            if (count === this.summaryMaxItems.input) {
 	              result.push('...');
 	              break;
 	            }
