@@ -84,6 +84,13 @@ into the `defaults` value (see below).
 tree.setResultElement($('#resultInput'));
 ```
 
+When you need to automatically pass full results (with full paths) into result element, just call it with true as second
+argument.
+
+```
+tree.setResultElement($('#resultInput'), true);
+```
+
 ## Change style
 
 Look for options in [modal-dialog](https://npmjs.org/package/modal-dialog) package.
