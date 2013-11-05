@@ -194,6 +194,23 @@ describe 'Tree checkbox list', ->
 				type: {}
 			)
 
+		it 'should return serialized maximized selection', ->
+			tree.changeSelection(['pc', 'other'])
+			selected = tree.serialize(false, false)
+			expect(selected).to.be.eql(['pc', 'other', 'mobile', 'tablet', 'pda'])
+
+		it 'should return serialized maximized full selection', ->
+			tree.changeSelection(['pc', 'other'])
+			selected = tree.serialize(true, false)
+			expect(selected).to.be.eql(
+				other:
+					mobile: {}
+					pda: {}
+					tablet: {}
+				type:
+					pc: {}
+			)
+
 	describe '#setSummaryElement()', ->
 
 		beforeEach( ->

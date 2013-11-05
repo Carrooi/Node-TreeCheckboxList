@@ -12252,7 +12252,7 @@
 			"title": "Other devices",
 			"items": {
 				"mobile": { "title": "Mobile" },
-				"table": { "title": "Tablet" },
+				"tablet": { "title": "Tablet" },
 				"pda": { "title": "PDA" }
 			}
 		},
@@ -12561,7 +12561,7 @@
 	        selected = tree.serialize();
 	        return expect(selected).to.be.eql(['pc', 'pda', 'mobileOs']);
 	      });
-	      return it('should return serialized results with paths of selected items', function() {
+	      it('should return serialized results with paths of selected items', function() {
 	        var selected;
 	        tree.changeSelection(['type', 'pda', 'symbian', 'android']);
 	        selected = tree.serialize(true);
@@ -12576,6 +12576,27 @@
 	            pda: {}
 	          },
 	          type: {}
+	        });
+	      });
+	      it('should return serialized maximized selection', function() {
+	        var selected;
+	        tree.changeSelection(['pc', 'other']);
+	        selected = tree.serialize(false, false);
+	        return expect(selected).to.be.eql(['pc', 'other', 'mobile', 'tablet', 'pda']);
+	      });
+	      return it('should return serialized maximized full selection', function() {
+	        var selected;
+	        tree.changeSelection(['pc', 'other']);
+	        selected = tree.serialize(true, false);
+	        return expect(selected).to.be.eql({
+	          other: {
+	            mobile: {},
+	            pda: {},
+	            tablet: {}
+	          },
+	          type: {
+	            pc: {}
+	          }
 	        });
 	      });
 	    });

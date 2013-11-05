@@ -10,7 +10,7 @@
 		"title": "Other devices",
 		"items": {
 			"mobile": { "title": "Mobile" },
-			"table": { "title": "Tablet" },
+			"tablet": { "title": "Tablet" },
 			"pda": { "title": "PDA" }
 		}
 	},
