@@ -12432,7 +12432,7 @@
 	        var selected;
 	        tree.changeSelection(['type', 'pda', 'mobileOs']);
 	        selected = tree.getSelection(false, false);
-	        return console.log(selected);
+	        return expect(selected).to.include.keys(['android', 'blackBerry', 'ios', 'laptop', 'mobileOs', 'pc', 'pda', 'symbian', 'type', 'windowsPhone']);
 	      });
 	      return it('should return full result of selected items', function() {
 	        var selected;

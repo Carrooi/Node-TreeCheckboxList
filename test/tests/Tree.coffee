@@ -111,10 +111,10 @@ describe 'Tree checkbox list', ->
 				mobileOs: {title: 'Mobile', items: {}, checked: true}
 			)
 
-		it.skip 'should return maximized selected items', ->
+		it 'should return maximized selected items', ->
 			tree.changeSelection(['type', 'pda', 'mobileOs'])
 			selected = tree.getSelection(false, false)
-			console.log selected
+			expect(selected).to.include.keys(['android', 'blackBerry', 'ios', 'laptop', 'mobileOs', 'pc', 'pda', 'symbian', 'type', 'windowsPhone'])
 
 		it 'should return full result of selected items', ->
 			tree.changeSelection(['type', 'pda', 'android', 'symbian'])
