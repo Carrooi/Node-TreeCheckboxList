@@ -91,6 +91,12 @@ argument.
 tree.setResultElement($('#resultInput'), true);
 ```
 
+Maximized results can be also set.
+
+```
+tree.setResultElement($('#resultInput'), false, false);
+```
+
 ## Change style
 
 Look for options in [modal-dialog](https://npmjs.org/package/modal-dialog) package.
