@@ -314,6 +314,27 @@ describe 'Tree checkbox list', ->
 					mobileOs: {android: {}}
 			)
 
+		it 'should render maximized result into input element', ->
+			tree.prepare()
+			tree.setResultElement($('#testElements input[name="result"]'), false, false)
+			tree.changeSelection(['pc', 'other'])
+			val = $('#testElements input[name="result"]').val()
+			expect(JSON.parse(val)).to.be.eql(['pc', 'other', 'mobile', 'tablet', 'pda'])
+
+		it 'should render maximized full result into input element', ->
+			tree.prepare()
+			tree.setResultElement($('#testElements input[name="result"]'), true, false)
+			tree.changeSelection(['pc', 'other'])
+			val = $('#testElements input[name="result"]').val()
+			expect(JSON.parse(val)).to.be.eql(
+				other:
+					mobile: {}
+					pda: {}
+					tablet: {}
+				type:
+					pc: {}
+			)
+
 		it 'should set default values from non empty result element', ->
 			el = $('#testElements input[name="result"]')
 			el.val('["pc", "pda", "linux", "android"]')

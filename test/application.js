@@ -2576,7 +2576,7 @@
 	
 	    Tree.prototype.resultElementFull = false;
 	
-	    Tree.prototype.resultElementMaximized = false;
+	    Tree.prototype.resultElementMinimized = true;
 	
 	    Tree.prototype.initialized = false;
 	
@@ -2827,13 +2827,13 @@
 	      return this.summaryElement = el;
 	    };
 	
-	    Tree.prototype.setResultElement = function(el, resultElementFull, resultElementMaximized) {
+	    Tree.prototype.setResultElement = function(el, resultElementFull, resultElementMinimized) {
 	      var helpers, items, name, result, value;
 	      this.resultElementFull = resultElementFull != null ? resultElementFull : this.resultElementFull;
-	      this.resultElementMaximized = resultElementMaximized != null ? resultElementMaximized : this.resultElementMaximized;
+	      this.resultElementMinimized = resultElementMinimized != null ? resultElementMinimized : this.resultElementMinimized;
 	      el = $(el);
 	      if (el.get(0).nodeName.toLowerCase() !== 'input' || el.attr('type') !== 'text') {
-	        throw new Error('Resule: invalid element');
+	        throw new Error('Result: invalid element');
 	      }
 	      if (el.val() !== '') {
 	        value = JSON.parse(el.val());
@@ -2969,7 +2969,7 @@
 	      var count, helper, item, name, result, that, ul, _ref, _ref1,
 	        _this = this;
 	      if (this.resultElement !== null) {
-	        this.resultElement.val(JSON.stringify(this.serialize(this.resultElementFull, !this.resultElementMaximized)));
+	        this.resultElement.val(JSON.stringify(this.serialize(this.resultElementFull, this.resultElementMinimized)));
 	      }
 	      if (this.summaryElement !== null) {
 	        if (this.summaryElement.get(0).nodeName.toLowerCase() === 'div') {
@@ -12718,6 +12718,31 @@
 	          }
 	        });
 	      });
+	      it('should render maximized result into input element', function() {
+	        var val;
+	        tree.prepare();
+	        tree.setResultElement($('#testElements input[name="result"]'), false, false);
+	        tree.changeSelection(['pc', 'other']);
+	        val = $('#testElements input[name="result"]').val();
+	        return expect(JSON.parse(val)).to.be.eql(['pc', 'other', 'mobile', 'tablet', 'pda']);
+	      });
+	      it('should render maximized full result into input element', function() {
+	        var val;
+	        tree.prepare();
+	        tree.setResultElement($('#testElements input[name="result"]'), true, false);
+	        tree.changeSelection(['pc', 'other']);
+	        val = $('#testElements input[name="result"]').val();
+	        return expect(JSON.parse(val)).to.be.eql({
+	          other: {
+	            mobile: {},
+	            pda: {},
+	            tablet: {}
+	          },
+	          type: {
+	            pc: {}
+	          }
+	        });
+	      });
 	      it('should set default values from non empty result element', function() {
 	        var el;
 	        el = $('#testElements input[name="result"]');
@@ -13154,7 +13179,7 @@
 	
 	    Tree.prototype.resultElementFull = false;
 	
-	    Tree.prototype.resultElementMaximized = false;
+	    Tree.prototype.resultElementMinimized = true;
 	
 	    Tree.prototype.initialized = false;
 	
@@ -13405,13 +13430,13 @@
 	      return this.summaryElement = el;
 	    };
 	
-	    Tree.prototype.setResultElement = function(el, resultElementFull, resultElementMaximized) {
+	    Tree.prototype.setResultElement = function(el, resultElementFull, resultElementMinimized) {
 	      var helpers, items, name, result, value;
 	      this.resultElementFull = resultElementFull != null ? resultElementFull : this.resultElementFull;
-	      this.resultElementMaximized = resultElementMaximized != null ? resultElementMaximized : this.resultElementMaximized;
+	      this.resultElementMinimized = resultElementMinimized != null ? resultElementMinimized : this.resultElementMinimized;
 	      el = $(el);
 	      if (el.get(0).nodeName.toLowerCase() !== 'input' || el.attr('type') !== 'text') {
-	        throw new Error('Resule: invalid element');
+	        throw new Error('Result: invalid element');
 	      }
 	      if (el.val() !== '') {
 	        value = JSON.parse(el.val());
@@ -13547,7 +13572,7 @@
 	      var count, helper, item, name, result, that, ul, _ref, _ref1,
 	        _this = this;
 	      if (this.resultElement !== null) {
-	        this.resultElement.val(JSON.stringify(this.serialize(this.resultElementFull, !this.resultElementMaximized)));
+	        this.resultElement.val(JSON.stringify(this.serialize(this.resultElementFull, this.resultElementMinimized)));
 	      }
 	      if (this.summaryElement !== null) {
 	        if (this.summaryElement.get(0).nodeName.toLowerCase() === 'div') {

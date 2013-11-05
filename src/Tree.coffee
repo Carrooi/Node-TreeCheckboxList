@@ -38,7 +38,7 @@ class Tree
 
 	resultElementFull: false
 
-	resultElementMaximized: false
+	resultElementMinimized: true
 
 	initialized: false
 
@@ -249,7 +249,7 @@ class Tree
 		@summaryElement = el
 
 
-	setResultElement: (el, @resultElementFull = @resultElementFull, @resultElementMaximized = @resultElementMaximized) ->
+	setResultElement: (el, @resultElementFull = @resultElementFull, @resultElementMinimized = @resultElementMinimized) ->
 		el = $(el)
 		if el.get(0).nodeName.toLowerCase() != 'input' || el.attr('type') != 'text'
 			throw new Error 'Result: invalid element'
@@ -353,7 +353,7 @@ class Tree
 
 	renderOutputs: ->
 		if @resultElement != null
-			@resultElement.val(JSON.stringify(@serialize(@resultElementFull, !@resultElementMaximized)))
+			@resultElement.val(JSON.stringify(@serialize(@resultElementFull, @resultElementMinimized)))
 
 		if @summaryElement != null
 			if @summaryElement.get(0).nodeName.toLowerCase() == 'div'
