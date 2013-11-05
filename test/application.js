@@ -12434,6 +12434,77 @@
 	        selected = tree.getSelection(false, false);
 	        return expect(selected).to.include.keys(['android', 'blackBerry', 'ios', 'laptop', 'mobileOs', 'pc', 'pda', 'symbian', 'type', 'windowsPhone']);
 	      });
+	      it('should return maximized full selection', function() {
+	        var selected;
+	        tree.changeSelection(['type', 'pda', 'mobileOs']);
+	        selected = tree.getSelection(true, false);
+	        return expect(selected).to.be.eql({
+	          os: {
+	            checked: false,
+	            items: {
+	              mobileOs: {
+	                checked: true,
+	                items: {
+	                  android: {
+	                    checked: true,
+	                    items: {},
+	                    title: 'Android'
+	                  },
+	                  blackBerry: {
+	                    checked: true,
+	                    items: {},
+	                    title: 'BlackBerry'
+	                  },
+	                  ios: {
+	                    checked: true,
+	                    items: {},
+	                    title: 'iOS'
+	                  },
+	                  symbian: {
+	                    checked: true,
+	                    items: {},
+	                    title: 'Symbian'
+	                  },
+	                  windowsPhone: {
+	                    checked: true,
+	                    items: {},
+	                    title: 'Windows phone'
+	                  }
+	                },
+	                title: 'Mobile'
+	              }
+	            },
+	            title: 'Operating system'
+	          },
+	          other: {
+	            checked: false,
+	            items: {
+	              pda: {
+	                checked: true,
+	                items: {},
+	                title: 'PDA'
+	              }
+	            },
+	            title: 'Other devices'
+	          },
+	          type: {
+	            checked: true,
+	            items: {
+	              laptop: {
+	                checked: true,
+	                items: {},
+	                title: 'Laptop'
+	              },
+	              pc: {
+	                checked: true,
+	                items: {},
+	                title: 'PC'
+	              }
+	            },
+	            title: 'Type'
+	          }
+	        });
+	      });
 	      return it('should return full result of selected items', function() {
 	        var selected;
 	        tree.changeSelection(['type', 'pda', 'android', 'symbian']);
