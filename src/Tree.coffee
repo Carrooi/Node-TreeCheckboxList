@@ -252,7 +252,7 @@ class Tree
 	setResultElement: (el, @resultElementFull = @resultElementFull, @resultElementMaximized = @resultElementMaximized) ->
 		el = $(el)
 		if el.get(0).nodeName.toLowerCase() != 'input' || el.attr('type') != 'text'
-			throw new Error 'Resule: invalid element'
+			throw new Error 'Result: invalid element'
 
 		if el.val() != ''
 			value = JSON.parse(el.val())
