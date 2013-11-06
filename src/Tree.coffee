@@ -15,6 +15,7 @@ class Tree
 		summaryRemove: 'Remove'
 		summaryShow: 'Show all'
 		summaryHide: 'Hide'
+		selected: 'Selected items: %s'
 
 	num: 0
 
@@ -91,10 +92,11 @@ class Tree
 					float: 'right'
 			).appendTo(title)
 
-			@dialog = new Dialog
+			@dialog = new Dialog($)
 			@dialog.header = title
 			@dialog.content = content
 			@dialog.addButton Tree.labels.closeButton, => @close()
+			@dialog.render()
 
 			@maximize()
 
@@ -352,6 +354,12 @@ class Tree
 
 
 	renderOutputs: ->
+		count = @getChecked().length
+		if count > 0
+			@dialog.changeInfo(Tree.labels.selected.replace(/\%s/g, count))
+		else
+			@dialog.changeInfo(null)
+
 		if @resultElement != null
 			@resultElement.val(JSON.stringify(@serialize(@resultElementFull, @resultElementMinimized)))
 

@@ -261,6 +261,8 @@
 	
 	    Dialog.styles = true;
 	
+	    Dialog.prototype.options = null;
+	
 	    Dialog.prototype.title = null;
 	
 	    Dialog.prototype.header = null;
@@ -283,6 +285,8 @@
 	
 	    Dialog.prototype.el = null;
 	
+	    Dialog.prototype.elements = null;
+	
 	    function Dialog(jquery) {
 	      var err,
 	        _this = this;
@@ -302,6 +306,7 @@
 	      }
 	      $ = jquery;
 	      this.buttons = [];
+	      this.elements = {};
 	      if (Dialog.overlayRegistered === false) {
 	        Dialog.overlayRegistered = true;
 	        Overlay.on('hide', function() {
@@ -320,194 +325,262 @@
 	      return this;
 	    };
 	
+	    Dialog.prototype.parseOptions = function(options) {
+	      if (options == null) {
+	        options = {};
+	      }
+	      if (typeof options.width === 'undefined') {
+	        options.width = this.width;
+	      }
+	      if (typeof options.maxHeight === 'undefined') {
+	        options.maxHeight = this.maxHeight;
+	      }
+	      if (typeof options.duration === 'undefined') {
+	        options.duration = this.duration;
+	      }
+	      if (typeof options.zIndex === 'undefined') {
+	        options.zIndex = this.zIndex;
+	      }
+	      if (typeof options.styles === 'undefined') {
+	        options.styles = Dialog.styles;
+	      }
+	      if (typeof options.classes === 'undefined') {
+	        options.classes = {};
+	      }
+	      if (typeof options.overlay === 'undefined') {
+	        options.overlay = {};
+	      }
+	      if (typeof options.classes.container === 'undefined') {
+	        options.classes.container = Dialog.classes.container;
+	      }
+	      if (typeof options.classes.title === 'undefined') {
+	        options.classes.title = Dialog.classes.title;
+	      }
+	      if (typeof options.classes.header === 'undefined') {
+	        options.classes.header = Dialog.classes.header;
+	      }
+	      if (typeof options.classes.content === 'undefined') {
+	        options.classes.content = Dialog.classes.content;
+	      }
+	      if (typeof options.classes.footer === 'undefined') {
+	        options.classes.footer = Dialog.classes.footer;
+	      }
+	      if (typeof options.classes.info === 'undefined') {
+	        options.classes.info = Dialog.classes.info;
+	      }
+	      if (typeof options.classes.buttons === 'undefined') {
+	        options.classes.buttons = Dialog.classes.buttons;
+	      }
+	      if (typeof options.classes.button === 'undefined') {
+	        options.classes.button = Dialog.classes.button;
+	      }
+	      options.overlay.duration = options.duration;
+	      return options;
+	    };
+	
+	    Dialog.prototype.renderHeader = function() {
+	      if (typeof this.elements.header === 'undefined') {
+	        this.elements.header = $('<div>', {
+	          'class': this.options.classes.header
+	        });
+	      }
+	      if (this.header || this.title) {
+	        if (this.header) {
+	          this.elements.header.html(this.header);
+	        } else {
+	          this.elements.header.html('<span class="' + this.options.classes.title + '">' + this.title + '</span>');
+	        }
+	      }
+	      return this.elements.header;
+	    };
+	
+	    Dialog.prototype.renderContent = function() {
+	      if (typeof this.elements.content === 'undefined') {
+	        this.elements.content = $('<div>', {
+	          'class': this.options.classes.content
+	        });
+	      }
+	      if (this.content !== null) {
+	        this.elements.content.html(this.content);
+	      }
+	      return this.elements.content;
+	    };
+	
+	    Dialog.prototype.renderFooter = function() {
+	      var button, _fn, _i, _len, _ref,
+	        _this = this;
+	      if (typeof this.elements.footer === 'undefined') {
+	        this.elements.footer = $('<div>', {
+	          'class': this.options.classes.footer
+	        });
+	      }
+	      if (this.footer || this.info || this.buttons.length > 0) {
+	        if (this.footer) {
+	          this.elements.footer.html(this.footer);
+	        } else {
+	          if (this.info) {
+	            this.elements.info = $('<span class="' + this.options.classes.info + '">' + this.info + '</span>').appendTo(this.elements.footer);
+	          }
+	          if (this.buttons.length > 0) {
+	            this.elements.buttons = $('<div class="' + this.options.classes.buttons + '">');
+	            _ref = this.buttons;
+	            _fn = function(button) {
+	              return $('<a>', {
+	                html: button.title,
+	                href: '#',
+	                'class': _this.options.classes.button,
+	                click: function(e) {
+	                  e.preventDefault();
+	                  return button.action.call(_this);
+	                }
+	              }).appendTo(_this.elements.buttons);
+	            };
+	            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+	              button = _ref[_i];
+	              _fn(button);
+	            }
+	            this.elements.buttons.appendTo(this.elements.footer);
+	          }
+	        }
+	      }
+	      return this.elements.footer;
+	    };
+	
+	    Dialog.prototype.refreshStyles = function(type) {
+	      var styles;
+	      if (type == null) {
+	        type = null;
+	      }
+	      if (type === null || type === 'header') {
+	        if (this.elements.header.html() === '') {
+	          this.elements.header.removeAttr('styles');
+	        } else if (this.options.styles) {
+	          this.elements.header.css({
+	            borderBottom: '1px solid black',
+	            paddingBottom: '8px'
+	          });
+	        }
+	      }
+	      if (type === null || type === 'content') {
+	        styles = {
+	          maxHeight: this.options.maxHeight,
+	          overflow: 'hidden',
+	          overflowX: 'auto',
+	          overflowY: 'auto'
+	        };
+	        if (this.elements.content.html() === '') {
+	          this.elements.content.removeAttr('styles');
+	        } else if (this.options.styles) {
+	          styles.borderBottom = '1px solid black';
+	          styles.paddingTop = '8px';
+	          styles.paddingBottom = '8px';
+	        }
+	        this.elements.content.css(styles);
+	      }
+	      if (type === null || type === 'footer') {
+	        if (this.elements.footer.html() === '') {
+	          return this.elements.footer.removeAttr('styles');
+	        } else if (this.options.styles) {
+	          this.elements.footer.css({
+	            paddingTop: '8px'
+	          });
+	          if (!this.footer && this.buttons.length > 0) {
+	            return this.elements.buttons.css({
+	              float: 'right'
+	            });
+	          }
+	        }
+	      }
+	    };
+	
+	    Dialog.prototype.render = function() {
+	      var styles;
+	      if (this.options === null) {
+	        this.options = this.parseOptions();
+	      }
+	      this.el = $('<div>', {
+	        'class': this.options.classes.container,
+	        css: {
+	          display: 'none',
+	          position: 'fixed',
+	          left: '50%',
+	          top: '50%'
+	        }
+	      }).appendTo($('body'));
+	      styles = {
+	        zIndex: this.options.zIndex,
+	        width: this.options.width,
+	        marginLeft: -(this.options.width / 2),
+	        marginTop: -(this.options.maxHeight / 2)
+	      };
+	      if (this.options.styles) {
+	        styles.border = '1px solid black';
+	        styles.backgroundColor = 'white';
+	        styles.padding = '10px 12px 10px 12px';
+	      }
+	      this.el.css(styles);
+	      this.el.append(this.renderHeader());
+	      this.el.append(this.renderContent());
+	      this.el.append(this.renderFooter());
+	      return this.refreshStyles();
+	    };
+	
+	    Dialog.prototype.moveToCenter = function() {
+	      var deferred,
+	        _this = this;
+	      deferred = Q.defer();
+	      this.el.css({
+	        display: 'block',
+	        visibility: 'hidden'
+	      });
+	      ready(this.el).then(function() {
+	        var height;
+	        height = parseInt(_this.el.css('height'));
+	        _this.el.css({
+	          visibility: 'visible',
+	          marginTop: -(height / 2)
+	        });
+	        return deferred.resolve(_this);
+	      });
+	      return deferred.promise;
+	    };
+	
 	    Dialog.prototype.show = function(options) {
-	      var button, buttons, deferred, done, finish, footer, header, styles, _fn, _i, _len, _ref,
+	      var deferred,
 	        _this = this;
 	      if (options == null) {
 	        options = {};
 	      }
 	      if (Dialog.visible === null) {
 	        this.emit('beforeShow', this);
-	        if (typeof options.width === 'undefined') {
-	          options.width = this.width;
-	        }
-	        if (typeof options.maxHeight === 'undefined') {
-	          options.maxHeight = this.maxHeight;
-	        }
-	        if (typeof options.duration === 'undefined') {
-	          options.duration = this.duration;
-	        }
-	        if (typeof options.zIndex === 'undefined') {
-	          options.zIndex = this.zIndex;
-	        }
-	        if (typeof options.styles === 'undefined') {
-	          options.styles = Dialog.styles;
-	        }
-	        if (typeof options.classes === 'undefined') {
-	          options.classes = {};
-	        }
-	        if (typeof options.overlay === 'undefined') {
-	          options.overlay = {};
-	        }
-	        if (typeof options.classes.container === 'undefined') {
-	          options.classes.container = Dialog.classes.container;
-	        }
-	        if (typeof options.classes.title === 'undefined') {
-	          options.classes.title = Dialog.classes.title;
-	        }
-	        if (typeof options.classes.header === 'undefined') {
-	          options.classes.header = Dialog.classes.header;
-	        }
-	        if (typeof options.classes.content === 'undefined') {
-	          options.classes.content = Dialog.classes.content;
-	        }
-	        if (typeof options.classes.footer === 'undefined') {
-	          options.classes.footer = Dialog.classes.footer;
-	        }
-	        if (typeof options.classes.info === 'undefined') {
-	          options.classes.info = Dialog.classes.info;
-	        }
-	        if (typeof options.classes.buttons === 'undefined') {
-	          options.classes.buttons = Dialog.classes.buttons;
-	        }
-	        if (typeof options.classes.button === 'undefined') {
-	          options.classes.button = Dialog.classes.button;
-	        }
-	        options.overlay.duration = options.duration;
+	        this.options = this.parseOptions(options);
 	        if (this.el === null) {
-	          this.el = $('<div>', {
-	            'class': options.classes.container,
-	            css: {
-	              display: 'none',
-	              position: 'fixed',
-	              left: '50%',
-	              top: '50%'
-	            }
-	          }).appendTo($('body'));
-	          styles = {
-	            zIndex: options.zIndex,
-	            width: options.width,
-	            marginLeft: -(options.width / 2),
-	            marginTop: -(options.maxHeight / 2)
-	          };
-	          if (options.styles) {
-	            styles.border = '1px solid black';
-	            styles.backgroundColor = 'white';
-	            styles.padding = '10px 12px 10px 12px';
-	          }
-	          this.el.css(styles);
-	          if (this.header || this.title) {
-	            header = $('<div>', {
-	              'class': options.classes.header
-	            });
-	            if (options.styles) {
-	              header.css({
-	                borderBottom: '1px solid black',
-	                paddingBottom: '8px'
-	              });
-	            }
-	            if (this.header) {
-	              header.html(this.header);
-	            } else {
-	              header.html('<span class="' + options.classes.title + '">' + this.title + '</span>');
-	            }
-	            header.appendTo(this.el);
-	          }
-	          if (this.content) {
-	            styles = {
-	              maxHeight: options.maxHeight,
-	              overflow: 'hidden',
-	              overflowX: 'auto',
-	              overflowY: 'auto'
-	            };
-	            if (options.styles) {
-	              styles.borderBottom = '1px solid black';
-	              styles.paddingTop = '8px';
-	              styles.paddingBottom = '8px';
-	            }
-	            $('<div>', {
-	              'class': options.classes.content,
-	              html: this.content,
-	              css: styles
-	            }).appendTo(this.el);
-	          }
-	          if (this.footer || this.info || this.buttons.length > 0) {
-	            footer = $('<div>', {
-	              'class': options.classes.footer
-	            });
-	            if (options.styles) {
-	              footer.css({
-	                paddingTop: '8px'
-	              });
-	            }
-	            if (this.footer) {
-	              footer.html(this.footer);
-	            } else {
-	              if (this.info) {
-	                $('<span class="' + options.classes.info + '">' + this.info + '</span>').appendTo(footer);
-	              }
-	              if (this.buttons.length > 0) {
-	                buttons = $('<div class="' + options.classes.buttons + '">');
-	                if (options.styles) {
-	                  buttons.css({
-	                    float: 'right'
-	                  });
-	                }
-	                _ref = this.buttons;
-	                _fn = function(button) {
-	                  return $('<a>', {
-	                    html: button.title,
-	                    href: '#',
-	                    'class': options.classes.button,
-	                    click: function(e) {
-	                      e.preventDefault();
-	                      return button.action.call(_this);
-	                    }
-	                  }).appendTo(buttons);
-	                };
-	                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-	                  button = _ref[_i];
-	                  _fn(button);
-	                }
-	                buttons.appendTo(footer);
-	              }
-	            }
-	            footer.appendTo(this.el);
-	          }
+	          this.render();
 	        }
-	        this.el.css({
-	          display: 'block',
-	          visibility: 'hidden'
-	        });
-	        ready(this.el).then(function() {
-	          var height;
-	          height = parseInt(_this.el.css('height'));
-	          return _this.el.css({
-	            visibility: 'visible',
-	            marginTop: -(height / 2)
-	          });
-	        });
-	        finish = function(deferred) {
-	          _this.emit('afterShow', _this);
-	          return deferred.resolve(_this);
-	        };
 	        deferred = Q.defer();
-	        done = {
-	          overlay: false,
-	          dialog: false
-	        };
-	        Overlay.show(options.overlay).then(function() {
-	          done.overlay = true;
-	          if (done.dialog) {
-	            return finish(deferred);
-	          }
-	        });
-	        this.el.fadeIn(options.duration, function(e) {
-	          Dialog.visible = _this;
-	          done.dialog = true;
-	          if (done.overlay) {
-	            return finish(deferred);
-	          }
+	        this.moveToCenter().then(function() {
+	          var done, finish;
+	          finish = function() {
+	            _this.emit('afterShow', _this);
+	            return deferred.resolve(_this);
+	          };
+	          done = {
+	            overlay: false,
+	            dialog: false
+	          };
+	          Overlay.show(_this.options.overlay).then(function() {
+	            done.overlay = true;
+	            if (done.dialog) {
+	              return finish(deferred);
+	            }
+	          });
+	          return _this.el.fadeIn(_this.options.duration, function(e) {
+	            Dialog.visible = _this;
+	            done.dialog = true;
+	            if (done.overlay) {
+	              return finish(deferred);
+	            }
+	          });
 	        });
 	        return deferred.promise;
 	      } else if (Dialog.visible === this) {
@@ -535,6 +608,35 @@
 	        });
 	      }
 	      return deferred.promise;
+	    };
+	
+	    Dialog.prototype.changeTitle = function(title) {
+	      this.title = title;
+	      this.header = null;
+	      this.renderHeader();
+	      this.refreshStyles('header');
+	      return this;
+	    };
+	
+	    Dialog.prototype.changeContent = function(content) {
+	      this.content = content;
+	      if (this.content === null) {
+	        this.elements.content.html('');
+	      }
+	      this.renderContent();
+	      this.refreshStyles('content');
+	      return this;
+	    };
+	
+	    Dialog.prototype.changeInfo = function(info) {
+	      this.info = info;
+	      if (this.info === null && typeof this.elements.info !== 'undefined') {
+	        this.elements.info.remove();
+	        delete this.elements.info;
+	      }
+	      this.renderFooter();
+	      this.refreshStyles('footer');
+	      return this;
 	    };
 	
 	    Dialog.prototype.isOpen = function() {
@@ -2550,7 +2652,8 @@
 	      closeButton: 'OK',
 	      summaryRemove: 'Remove',
 	      summaryShow: 'Show all',
-	      summaryHide: 'Hide'
+	      summaryHide: 'Hide',
+	      selected: 'Selected items: %s'
 	    };
 	
 	    Tree.prototype.num = 0;
@@ -2641,12 +2744,13 @@
 	            float: 'right'
 	          }
 	        }).appendTo(title);
-	        this.dialog = new Dialog;
+	        this.dialog = new Dialog($);
 	        this.dialog.header = title;
 	        this.dialog.content = content;
 	        this.dialog.addButton(Tree.labels.closeButton, function() {
 	          return _this.close();
 	        });
+	        this.dialog.render();
 	        this.maximize();
 	        this.renderOutputs();
 	        return this.initialized = true;
@@ -2968,6 +3072,12 @@
 	    Tree.prototype.renderOutputs = function() {
 	      var count, helper, item, name, result, that, ul, _ref, _ref1,
 	        _this = this;
+	      count = this.getChecked().length;
+	      if (count > 0) {
+	        this.dialog.changeInfo(Tree.labels.selected.replace(/\%s/g, count));
+	      } else {
+	        this.dialog.changeInfo(null);
+	      }
 	      if (this.resultElement !== null) {
 	        this.resultElement.val(JSON.stringify(this.serialize(this.resultElementFull, this.resultElementMinimized)));
 	      }
@@ -3170,11 +3280,7 @@
 	    "url": "https://github.com/sakren/node-content-ready/issues"
 	  },
 	  "_id": "content-ready@1.0.0",
-	  "dist": {
-	    "shasum": "2f60099648c39d210f7015c7c874a55d19b26192"
-	  },
-	  "_from": "content-ready@~1.0.0",
-	  "_resolved": "https://registry.npmjs.org/content-ready/-/content-ready-1.0.0.tgz"
+	  "_from": "content-ready@~1.0.0"
 	}
 	
 	}).call(this);
@@ -5544,11 +5650,7 @@
 	  "readme": "[![Build Status](https://secure.travis-ci.org/kriskowal/q.png?branch=master)](http://travis-ci.org/kriskowal/q)\n\n<a href=\"http://promises-aplus.github.com/promises-spec\">\n    <img src=\"http://promises-aplus.github.com/promises-spec/assets/logo-small.png\"\n         align=\"right\" alt=\"Promises/A+ logo\" />\n</a>\n\nIf a function cannot return a value or throw an exception without\nblocking, it can return a promise instead.  A promise is an object\nthat represents the return value or the thrown exception that the\nfunction may eventually provide.  A promise can also be used as a\nproxy for a [remote object][Q-Connection] to overcome latency.\n\n[Q-Connection]: https://github.com/kriskowal/q-connection\n\nOn the first pass, promises can mitigate the “[Pyramid of\nDoom][POD]”: the situation where code marches to the right faster\nthan it marches forward.\n\n[POD]: http://calculist.org/blog/2011/12/14/why-coroutines-wont-work-on-the-web/\n\n```javascript\nstep1(function (value1) {\n    step2(value1, function(value2) {\n        step3(value2, function(value3) {\n            step4(value3, function(value4) {\n                // Do something with value4\n            });\n        });\n    });\n});\n```\n\nWith a promise library, you can flatten the pyramid.\n\n```javascript\nQ.fcall(promisedStep1)\n.then(promisedStep2)\n.then(promisedStep3)\n.then(promisedStep4)\n.then(function (value4) {\n    // Do something with value4\n})\n.catch(function (error) {\n    // Handle any error from all above steps\n})\n.done();\n```\n\nWith this approach, you also get implicit error propagation, just like `try`,\n`catch`, and `finally`.  An error in `promisedStep1` will flow all the way to\nthe `catch` function, where it’s caught and handled.  (Here `promisedStepN` is\na version of `stepN` that returns a promise.)\n\nThe callback approach is called an “inversion of control”.\nA function that accepts a callback instead of a return value\nis saying, “Don’t call me, I’ll call you.”.  Promises\n[un-invert][IOC] the inversion, cleanly separating the input\narguments from control flow arguments.  This simplifies the\nuse and creation of API’s, particularly variadic,\nrest and spread arguments.\n\n[IOC]: http://www.slideshare.net/domenicdenicola/callbacks-promises-and-coroutines-oh-my-the-evolution-of-asynchronicity-in-javascript\n\n\n## Getting Started\n\nThe Q module can be loaded as:\n\n-   A ``<script>`` tag (creating a ``Q`` global variable): ~2.5 KB minified and\n    gzipped.\n-   A Node.js and CommonJS module, available in [npm](https://npmjs.org/) as\n    the [q](https://npmjs.org/package/q) package\n-   An AMD module\n-   A [component](https://github.com/component/component) as ``microjs/q``\n-   Using [bower](http://bower.io/) as ``q``\n-   Using [NuGet](http://nuget.org/) as [Q](https://nuget.org/packages/q)\n\nQ can exchange promises with jQuery, Dojo, When.js, WinJS, and more.\n\n## Resources\n\nOur [wiki][] contains a number of useful resources, including:\n\n- A method-by-method [Q API reference][reference].\n- A growing [examples gallery][examples], showing how Q can be used to make\n  everything better. From XHR to database access to accessing the Flickr API,\n  Q is there for you.\n- There are many libraries that produce and consume Q promises for everything\n  from file system/database access or RPC to templating. For a list of some of\n  the more popular ones, see [Libraries][].\n- If you want materials that introduce the promise concept generally, and the\n  below tutorial isn't doing it for you, check out our collection of\n  [presentations, blog posts, and podcasts][resources].\n- A guide for those [coming from jQuery's `$.Deferred`][jquery].\n\nWe'd also love to have you join the Q-Continuum [mailing list][].\n\n[wiki]: https://github.com/kriskowal/q/wiki\n[reference]: https://github.com/kriskowal/q/wiki/API-Reference\n[examples]: https://github.com/kriskowal/q/wiki/Examples-Gallery\n[Libraries]: https://github.com/kriskowal/q/wiki/Libraries\n[resources]: https://github.com/kriskowal/q/wiki/General-Promise-Resources\n[jquery]: https://github.com/kriskowal/q/wiki/Coming-from-jQuery\n[mailing list]: https://groups.google.com/forum/#!forum/q-continuum\n\n\n## Tutorial\n\nPromises have a ``then`` method, which you can use to get the eventual\nreturn value (fulfillment) or thrown exception (rejection).\n\n```javascript\npromiseMeSomething()\n.then(function (value) {\n}, function (reason) {\n});\n```\n\nIf ``promiseMeSomething`` returns a promise that gets fulfilled later\nwith a return value, the first function (the fulfillment handler) will be\ncalled with the value.  However, if the ``promiseMeSomething`` function\ngets rejected later by a thrown exception, the second function (the\nrejection handler) will be called with the exception.\n\nNote that resolution of a promise is always asynchronous: that is, the\nfulfillment or rejection handler will always be called in the next turn of the\nevent loop (i.e. `process.nextTick` in Node). This gives you a nice\nguarantee when mentally tracing the flow of your code, namely that\n``then`` will always return before either handler is executed.\n\nIn this tutorial, we begin with how to consume and work with promises. We'll\ntalk about how to create them, and thus create functions like\n`promiseMeSomething` that return promises, [below](#the-beginning).\n\n\n### Propagation\n\nThe ``then`` method returns a promise, which in this example, I’m\nassigning to ``outputPromise``.\n\n```javascript\nvar outputPromise = getInputPromise()\n.then(function (input) {\n}, function (reason) {\n});\n```\n\nThe ``outputPromise`` variable becomes a new promise for the return\nvalue of either handler.  Since a function can only either return a\nvalue or throw an exception, only one handler will ever be called and it\nwill be responsible for resolving ``outputPromise``.\n\n-   If you return a value in a handler, ``outputPromise`` will get\n    fulfilled.\n\n-   If you throw an exception in a handler, ``outputPromise`` will get\n    rejected.\n\n-   If you return a **promise** in a handler, ``outputPromise`` will\n    “become” that promise.  Being able to become a new promise is useful\n    for managing delays, combining results, or recovering from errors.\n\nIf the ``getInputPromise()`` promise gets rejected and you omit the\nrejection handler, the **error** will go to ``outputPromise``:\n\n```javascript\nvar outputPromise = getInputPromise()\n.then(function (value) {\n});\n```\n\nIf the input promise gets fulfilled and you omit the fulfillment handler, the\n**value** will go to ``outputPromise``:\n\n```javascript\nvar outputPromise = getInputPromise()\n.then(null, function (error) {\n});\n```\n\nQ promises provide a ``fail`` shorthand for ``then`` when you are only\ninterested in handling the error:\n\n```javascript\nvar outputPromise = getInputPromise()\n.fail(function (error) {\n});\n```\n\nIf you are writing JavaScript for modern engines only or using\nCoffeeScript, you may use `catch` instead of `fail`.\n\nPromises also have a ``fin`` function that is like a ``finally`` clause.\nThe final handler gets called, with no arguments, when the promise\nreturned by ``getInputPromise()`` either returns a value or throws an\nerror.  The value returned or error thrown by ``getInputPromise()``\npasses directly to ``outputPromise`` unless the final handler fails, and\nmay be delayed if the final handler returns a promise.\n\n```javascript\nvar outputPromise = getInputPromise()\n.fin(function () {\n    // close files, database connections, stop servers, conclude tests\n});\n```\n\n-   If the handler returns a value, the value is ignored\n-   If the handler throws an error, the error passes to ``outputPromise``\n-   If the handler returns a promise, ``outputPromise`` gets postponed.  The\n    eventual value or error has the same effect as an immediate return\n    value or thrown error: a value would be ignored, an error would be\n    forwarded.\n\nIf you are writing JavaScript for modern engines only or using\nCoffeeScript, you may use `finally` instead of `fin`.\n\n### Chaining\n\nThere are two ways to chain promises.  You can chain promises either\ninside or outside handlers.  The next two examples are equivalent.\n\n```javascript\nreturn getUsername()\n.then(function (username) {\n    return getUser(username)\n    .then(function (user) {\n        // if we get here without an error,\n        // the value returned here\n        // or the exception thrown here\n        // resolves the promise returned\n        // by the first line\n    })\n});\n```\n\n```javascript\nreturn getUsername()\n.then(function (username) {\n    return getUser(username);\n})\n.then(function (user) {\n    // if we get here without an error,\n    // the value returned here\n    // or the exception thrown here\n    // resolves the promise returned\n    // by the first line\n});\n```\n\nThe only difference is nesting.  It’s useful to nest handlers if you\nneed to capture multiple input values in your closure.\n\n```javascript\nfunction authenticate() {\n    return getUsername()\n    .then(function (username) {\n        return getUser(username);\n    })\n    // chained because we will not need the user name in the next event\n    .then(function (user) {\n        return getPassword()\n        // nested because we need both user and password next\n        .then(function (password) {\n            if (user.passwordHash !== hash(password)) {\n                throw new Error(\"Can't authenticate\");\n            }\n        });\n    });\n}\n```\n\n\n### Combination\n\nYou can turn an array of promises into a promise for the whole,\nfulfilled array using ``all``.\n\n```javascript\nreturn Q.all([\n    eventualAdd(2, 2),\n    eventualAdd(10, 20)\n]);\n```\n\nIf you have a promise for an array, you can use ``spread`` as a\nreplacement for ``then``.  The ``spread`` function “spreads” the\nvalues over the arguments of the fulfillment handler.  The rejection handler\nwill get called at the first sign of failure.  That is, whichever of\nthe recived promises fails first gets handled by the rejection handler.\n\n```javascript\nfunction eventualAdd(a, b) {\n    return Q.spread([a, b], function (a, b) {\n        return a + b;\n    })\n}\n```\n\nBut ``spread`` calls ``all`` initially, so you can skip it in chains.\n\n```javascript\nreturn getUsername()\n.then(function (username) {\n    return [username, getUser(username)];\n})\n.spread(function (username, user) {\n});\n```\n\nThe ``all`` function returns a promise for an array of values.  When this\npromise is fulfilled, the array contains the fulfillment values of the original\npromises, in the same order as those promises.  If one of the given promises\nis rejected, the returned promise is immediately rejected, not waiting for the\nrest of the batch.  If you want to wait for all of the promises to either be\nfulfilled or rejected, you can use ``allSettled``.\n\n```javascript\nQ.allSettled(promises)\n.then(function (results) {\n    results.forEach(function (result) {\n        if (result.state === \"fulfilled\") {\n            var value = result.value;\n        } else {\n            var reason = result.reason;\n        }\n    });\n});\n```\n\n\n### Sequences\n\nIf you have a number of promise-producing functions that need\nto be run sequentially, you can of course do so manually:\n\n```javascript\nreturn foo(initialVal).then(bar).then(baz).then(qux);\n```\n\nHowever, if you want to run a dynamically constructed sequence of\nfunctions, you'll want something like this:\n\n```javascript\nvar funcs = [foo, bar, baz, qux];\n\nvar result = Q(initialVal);\nfuncs.forEach(function (f) {\n    result = result.then(f);\n});\nreturn result;\n```\n\nYou can make this slightly more compact using `reduce`:\n\n```javascript\nreturn funcs.reduce(function (soFar, f) {\n    return soFar.then(f);\n}, Q(initialVal));\n```\n\nOr, you could use th ultra-compact version:\n\n```javascript\nreturn funcs.reduce(Q.when, Q());\n```\n\n### Handling Errors\n\nOne sometimes-unintuive aspect of promises is that if you throw an\nexception in the fulfillment handler, it will not be be caught by the error\nhandler.\n\n```javascript\nreturn foo()\n.then(function (value) {\n    throw new Error(\"Can't bar.\");\n}, function (error) {\n    // We only get here if \"foo\" fails\n});\n```\n\nTo see why this is, consider the parallel between promises and\n``try``/``catch``. We are ``try``-ing to execute ``foo()``: the error\nhandler represents a ``catch`` for ``foo()``, while the fulfillment handler\nrepresents code that happens *after* the ``try``/``catch`` block.\nThat code then needs its own ``try``/``catch`` block.\n\nIn terms of promises, this means chaining your rejection handler:\n\n```javascript\nreturn foo()\n.then(function (value) {\n    throw new Error(\"Can't bar.\");\n})\n.fail(function (error) {\n    // We get here with either foo's error or bar's error\n});\n```\n\n### Progress Notification\n\nIt's possible for promises to report their progress, e.g. for tasks that take a\nlong time like a file upload. Not all promises will implement progress\nnotifications, but for those that do, you can consume the progress values using\na third parameter to ``then``:\n\n```javascript\nreturn uploadFile()\n.then(function () {\n    // Success uploading the file\n}, function (err) {\n    // There was an error, and we get the reason for error\n}, function (progress) {\n    // We get notified of the upload's progress as it is executed\n});\n```\n\nLike `fail`, Q also provides a shorthand for progress callbacks\ncalled `progress`:\n\n```javascript\nreturn uploadFile().progress(function (progress) {\n    // We get notified of the upload's progress\n});\n```\n\n### The End\n\nWhen you get to the end of a chain of promises, you should either\nreturn the last promise or end the chain.  Since handlers catch\nerrors, it’s an unfortunate pattern that the exceptions can go\nunobserved.\n\nSo, either return it,\n\n```javascript\nreturn foo()\n.then(function () {\n    return \"bar\";\n});\n```\n\nOr, end it.\n\n```javascript\nfoo()\n.then(function () {\n    return \"bar\";\n})\n.done();\n```\n\nEnding a promise chain makes sure that, if an error doesn’t get\nhandled before the end, it will get rethrown and reported.\n\nThis is a stopgap. We are exploring ways to make unhandled errors\nvisible without any explicit handling.\n\n\n### The Beginning\n\nEverything above assumes you get a promise from somewhere else.  This\nis the common case.  Every once in a while, you will need to create a\npromise from scratch.\n\n#### Using ``Q.fcall``\n\nYou can create a promise from a value using ``Q.fcall``.  This returns a\npromise for 10.\n\n```javascript\nreturn Q.fcall(function () {\n    return 10;\n});\n```\n\nYou can also use ``fcall`` to get a promise for an exception.\n\n```javascript\nreturn Q.fcall(function () {\n    throw new Error(\"Can't do it\");\n});\n```\n\nAs the name implies, ``fcall`` can call functions, or even promised\nfunctions.  This uses the ``eventualAdd`` function above to add two\nnumbers.\n\n```javascript\nreturn Q.fcall(eventualAdd, 2, 2);\n```\n\n\n#### Using Deferreds\n\nIf you have to interface with asynchronous functions that are callback-based\ninstead of promise-based, Q provides a few shortcuts (like ``Q.nfcall`` and\nfriends). But much of the time, the solution will be to use *deferreds*.\n\n```javascript\nvar deferred = Q.defer();\nFS.readFile(\"foo.txt\", \"utf-8\", function (error, text) {\n    if (error) {\n        deferred.reject(new Error(error));\n    } else {\n        deferred.resolve(text);\n    }\n});\nreturn deferred.promise;\n```\n\nNote that a deferred can be resolved with a value or a promise.  The\n``reject`` function is a shorthand for resolving with a rejected\npromise.\n\n```javascript\n// this:\ndeferred.reject(new Error(\"Can't do it\"));\n\n// is shorthand for:\nvar rejection = Q.fcall(function () {\n    throw new Error(\"Can't do it\");\n});\ndeferred.resolve(rejection);\n```\n\nThis is a simplified implementation of ``Q.delay``.\n\n```javascript\nfunction delay(ms) {\n    var deferred = Q.defer();\n    setTimeout(deferred.resolve, ms);\n    return deferred.promise;\n}\n```\n\nThis is a simplified implementation of ``Q.timeout``\n\n```javascript\nfunction timeout(promise, ms) {\n    var deferred = Q.defer();\n    Q.when(promise, deferred.resolve);\n    delay(ms).then(function () {\n        deferred.reject(new Error(\"Timed out\"));\n    });\n    return deferred.promise;\n}\n```\n\nFinally, you can send a progress notification to the promise with\n``deferred.notify``.\n\nFor illustration, this is a wrapper for XML HTTP requests in the browser. Note\nthat a more [thorough][XHR] implementation would be in order in practice.\n\n[XHR]: https://github.com/montagejs/mr/blob/71e8df99bb4f0584985accd6f2801ef3015b9763/browser.js#L29-L73\n\n```javascript\nfunction requestOkText(url) {\n    var request = new XMLHttpRequest();\n    var deferred = Q.defer();\n\n    request.open(\"GET\", url, true);\n    request.onload = onload;\n    request.onerror = onerror;\n    request.onprogress = onprogress;\n    request.send();\n\n    function onload() {\n        if (request.status === 200) {\n            deferred.resolve(request.responseText);\n        } else {\n            deferred.reject(new Error(\"Status code was \" + request.status));\n        }\n    }\n\n    function onerror() {\n        deferred.reject(new Error(\"Can't XHR \" + JSON.stringify(url)));\n    }\n\n    function onprogress(event) {\n        deferred.notify(event.loaded / event.total);\n    }\n\n    return deferred.promise;\n}\n```\n\nBelow is an example of how to use this ``requestOkText`` function:\n\n```javascript\nrequestOkText(\"http://localhost:3000\")\n.then(function (responseText) {\n    // If the HTTP response returns 200 OK, log the response text.\n    console.log(responseText);\n}, function (error) {\n    // If there's an error or a non-200 status code, log the error.\n    console.error(error);\n}, function (progress) {\n    // Log the progress as it comes in.\n    console.log(\"Request progress: \" + Math.round(progress * 100) + \"%\");\n});\n```\n\n### The Middle\n\nIf you are using a function that may return a promise, but just might\nreturn a value if it doesn’t need to defer, you can use the “static”\nmethods of the Q library.\n\nThe ``when`` function is the static equivalent for ``then``.\n\n```javascript\nreturn Q.when(valueOrPromise, function (value) {\n}, function (error) {\n});\n```\n\nAll of the other methods on a promise have static analogs with the\nsame name.\n\nThe following are equivalent:\n\n```javascript\nreturn Q.all([a, b]);\n```\n\n```javascript\nreturn Q.fcall(function () {\n    return [a, b];\n})\n.all();\n```\n\nWhen working with promises provided by other libraries, you should\nconvert it to a Q promise.  Not all promise libraries make the same\nguarantees as Q and certainly don’t provide all of the same methods.\nMost libraries only provide a partially functional ``then`` method.\nThis thankfully is all we need to turn them into vibrant Q promises.\n\n```javascript\nreturn Q($.ajax(...))\n.then(function () {\n});\n```\n\nIf there is any chance that the promise you receive is not a Q promise\nas provided by your library, you should wrap it using a Q function.\nYou can even use ``Q.invoke`` as a shorthand.\n\n```javascript\nreturn Q.invoke($, 'ajax', ...)\n.then(function () {\n});\n```\n\n\n### Over the Wire\n\nA promise can serve as a proxy for another object, even a remote\nobject.  There are methods that allow you to optimistically manipulate\nproperties or call functions.  All of these interactions return\npromises, so they can be chained.\n\n```\ndirect manipulation         using a promise as a proxy\n--------------------------  -------------------------------\nvalue.foo                   promise.get(\"foo\")\nvalue.foo = value           promise.put(\"foo\", value)\ndelete value.foo            promise.del(\"foo\")\nvalue.foo(...args)          promise.post(\"foo\", [args])\nvalue.foo(...args)          promise.invoke(\"foo\", ...args)\nvalue(...args)              promise.fapply([args])\nvalue(...args)              promise.fcall(...args)\n```\n\nIf the promise is a proxy for a remote object, you can shave\nround-trips by using these functions instead of ``then``.  To take\nadvantage of promises for remote objects, check out [Q-Connection][].\n\n[Q-Connection]: https://github.com/kriskowal/q-connection\n\nEven in the case of non-remote objects, these methods can be used as\nshorthand for particularly-simple fulfillment handlers. For example, you\ncan replace\n\n```javascript\nreturn Q.fcall(function () {\n    return [{ foo: \"bar\" }, { foo: \"baz\" }];\n})\n.then(function (value) {\n    return value[0].foo;\n});\n```\n\nwith\n\n```javascript\nreturn Q.fcall(function () {\n    return [{ foo: \"bar\" }, { foo: \"baz\" }];\n})\n.get(0)\n.get(\"foo\");\n```\n\n\n### Adapting Node\n\nIf you're working with functions that make use of the Node.js callback pattern,\nwhere callbacks are in the form of `function(err, result)`, Q provides a few\nuseful utility functions for converting between them. The most straightforward\nare probably `Q.nfcall` and `Q.nfapply` (\"Node function call/apply\") for calling\nNode.js-style functions and getting back a promise:\n\n```javascript\nreturn Q.nfcall(FS.readFile, \"foo.txt\", \"utf-8\");\nreturn Q.nfapply(FS.readFile, [\"foo.txt\", \"utf-8\"]);\n```\n\nIf you are working with methods, instead of simple functions, you can easily\nrun in to the usual problems where passing a method to another function—like\n`Q.nfcall`—\"un-binds\" the method from its owner. To avoid this, you can either\nuse `Function.prototype.bind` or some nice shortcut methods we provide:\n\n```javascript\nreturn Q.ninvoke(redisClient, \"get\", \"user:1:id\");\nreturn Q.npost(redisClient, \"get\", [\"user:1:id\"]);\n```\n\nYou can also create reusable wrappers with `Q.denodeify` or `Q.nbind`:\n\n```javascript\nvar readFile = Q.denodeify(FS.readFile);\nreturn readFile(\"foo.txt\", \"utf-8\");\n\nvar redisClientGet = Q.nbind(redisClient.get, redisClient);\nreturn redisClientGet(\"user:1:id\");\n```\n\nFinally, if you're working with raw deferred objects, there is a\n`makeNodeResolver` method on deferreds that can be handy:\n\n```javascript\nvar deferred = Q.defer();\nFS.readFile(\"foo.txt\", \"utf-8\", deferred.makeNodeResolver());\nreturn deferred.promise;\n```\n\n### Long Stack Traces\n\nQ comes with optional support for “long stack traces,” wherein the `stack`\nproperty of `Error` rejection reasons is rewritten to be traced along\nasynchronous jumps instead of stopping at the most recent one. As an example:\n\n```js\nfunction theDepthsOfMyProgram() {\n  Q.delay(100).done(function explode() {\n    throw new Error(\"boo!\");\n  });\n}\n\ntheDepthsOfMyProgram();\n```\n\nusually would give a rather unhelpful stack trace looking something like\n\n```\nError: boo!\n    at explode (/path/to/test.js:3:11)\n    at _fulfilled (/path/to/test.js:q:54)\n    at resolvedValue.promiseDispatch.done (/path/to/q.js:823:30)\n    at makePromise.promise.promiseDispatch (/path/to/q.js:496:13)\n    at pending (/path/to/q.js:397:39)\n    at process.startup.processNextTick.process._tickCallback (node.js:244:9)\n```\n\nBut, if you turn this feature on by setting\n\n```js\nQ.longStackSupport = true;\n```\n\nthen the above code gives a nice stack trace to the tune of\n\n```\nError: boo!\n    at explode (/path/to/test.js:3:11)\nFrom previous event:\n    at theDepthsOfMyProgram (/path/to/test.js:2:16)\n    at Object.<anonymous> (/path/to/test.js:7:1)\n```\n\nNote how you can see the the function that triggered the async operation in the\nstack trace! This is very helpful for debugging, as otherwise you end up getting\nonly the first line, plus a bunch of Q internals, with no sign of where the\noperation started.\n\nThis feature does come with somewhat-serious performance and memory overhead,\nhowever. If you're working with lots of promises, or trying to scale a server\nto many users, you should probably keep it off. But in development, go for it!\n\n## Tests\n\nYou can view the results of the Q test suite [in your browser][tests]!\n\n[tests]: https://rawgithub.com/kriskowal/q/master/spec/q-spec.html\n\n## License\n\nCopyright 2009–2013 Kristopher Michael Kowal\nMIT License (enclosed)\n\n",
 	  "readmeFilename": "README.md",
 	  "_id": "q@0.9.7",
-	  "dist": {
-	    "shasum": "623fc846df67a9648da7a4b5d3fdd22148b63360"
-	  },
-	  "_from": "q@~0.9.7",
-	  "_resolved": "https://registry.npmjs.org/q/-/q-0.9.7.tgz"
+	  "_from": "q@~0.9.7"
 	}
 	
 	}).call(this);
@@ -5651,11 +5753,7 @@
 	    "url": "https://github.com/sakren/node-overlay/issues"
 	  },
 	  "_id": "overlay@1.2.4",
-	  "dist": {
-	    "shasum": "9ea961b8c1c11402b1566a5883fce9e101965e6a"
-	  },
-	  "_from": "overlay@~1.2.4",
-	  "_resolved": "https://registry.npmjs.org/overlay/-/overlay-1.2.4.tgz"
+	  "_from": "overlay@~1.2.4"
 	}
 	
 	}).call(this);
@@ -8166,7 +8264,7 @@
 	return {
 	  "name": "modal-dialog",
 	  "description": "Window modal dialogs for browser",
-	  "version": "1.5.0",
+	  "version": "1.6.0",
 	  "author": {
 	    "name": "David Kudera",
 	    "email": "sakren@gmail.com"
@@ -8200,17 +8298,13 @@
 	  "scripts": {
 	    "test": "cd ./test; mocha-phantomjs index.html;"
 	  },
-	  "readme": "# Modal dialog\n\nWindow modal dialogs for browser (eg. with [simq](https://npmjs.org/package/simq)).\nDepends on jQuery, instance of EventEmitter, uses [q](https://npmjs.org/package/q) promise library.\n\n## Installation\n\n```\n$ npm install modal-dialog\n```\n\n## Usage\n\n```\nvar Dialog = require('modal-dialog');\n\nvar d = new Dialog(window.jQuery);\nd.title = 'Title of my window';\nd.content = 'Lorem lipsum dolor sit amet...';\nd.info = 'Info in footer';\nd.addButton('OK', function() {\n\talert('OK button was clicked');\n\td.hide();\n});\nd.show();\n```\n\nIf you want to set some element directly into header or footer, you can set these variables. `Title` and `info` variables\nare just shortcuts for setting texts.\n\n```\nd.header = $('<div>my custom header</div>');\nd.footer = $('<div>my custom footer</div>');\n```\n\n## Styling\n\nThis modal dialog comes with one simple style which is sincerely horrible, so I recommend to use your own style. You just\nhave to disable the default one.\n\n```\nDialog.styles = false;\n```\n\nNow you can write your own styles in your css files. Modal dialog has got some classes for you. Names of these classes can\nbe also changed in variable `classes`. Here are the default ones.\n\n```\nDialog.classes = {\n\tcontainer: 'modal_dialog',\n\ttitle: 'title',\n\theader: 'header',\n\tcontent: 'content',\n\tfooter: 'footer',\n\tinfo: 'info',\n\tbuttons: 'buttons',\n\tbutton: 'button',\n};\n```\n\n## Options\n\nSettings described above were default settings, but you can set these options for each dialog separately.\n\n```\nd.show({\n\tstyles: false\n});\n```\n\n### List of options\n\n* width\n* maxHeight\n* duration (speed of animation in jquery)\n* zIndex\n* styles (disable or allow default styles)\n* classes (override default classes names)\n* overlay (list of options for [overlay](https://npmjs.org/package/overlay) package)\n\n## Confirmation dialog\n\nThere is prepared also simple confirmation dialog with two buttons (`OK` and `Cancel`).\n\n```\nvar Confirm = require('modal-dialog/ConfirmDialog');\n\nvar c = new Confirm(window.jQuery, 'Are you really want to continue?');\nc.on('true', function() {\n\talert('You clicked on the OK button');\n});\nc.on('false', function() {\n\talert('You clicked on the Cancel button');\n});\n```\n\nHere is how to set own captions for these two buttons.\n\n```\nvar c = new Confirm(window.jQuery, 'Some question', 'Yes', 'No');\n```\n\n## Events\n\n* `beforeShow` (dialog): Called before dialog is opened\n* `afterShow` (dialog): Called after dialog is opened (after all animations)\n* `beforeHide` (dialog): Called before dialog is closed\n* `afterHide` (dialog): Called after dialog is closed (after all animations)\n* `true` (only confirmations): Called when true button is clicked\n* `false` (only confirmations): Called when false button is clicked\n\nExample:\n```\nd.on('afterShow', function(dialog) {\n\td === dialog; //true\n\n\tconsole.log('Window is open');\n});\n```\n\n## Tests\n\n```\n$ npm test\n```\n\n## Changelog\n\n* 1.5.0\n\t+ onTrue and onFalse in confirmations replaced with eventEmitter events\n\t+ overlay did not hide in some situations\n\n* 1.4.0\n\t+ jQuery must be passed in constructor\n\n* 1.3.3 - 1.3.4\n\t+ Some optimizations\n\t+ Updated tests\n\n* 1.3.2\n\t+ Uses [content-ready](https://npmjs.org/package/content-ready) module\n\t+ Added many other tests\n\n* 1.3.1\n\t+ Added tests\n\n* 1.3.0\n\t+ Instance of EventEmitter\n\t+ Added some events\n\n* 1.2.2 - 1.2.4\n\t+ Showing dialog in right position after all images all loaded\n\n* 1.2.1\n\t+ Bug with custom styles\n\n* 1.2.0\n\t+ Added `isOpen` method\n\n* 1.1.1\n\t+ Some bugs\n\n* 1.1.0\n\t+ Added confirm dialog\n\n* 1.0.0\n\t+ Initial version",
+	  "readme": "# Modal dialog\n\nWindow modal dialogs for browser (eg. with [simq](https://npmjs.org/package/simq)).\nDepends on jQuery, instance of EventEmitter, uses [q](https://npmjs.org/package/q) promise library.\n\n## Installation\n\n```\n$ npm install modal-dialog\n```\n\n## Usage\n\n```\nvar Dialog = require('modal-dialog');\n\nvar d = new Dialog(window.jQuery);\nd.title = 'Title of my window';\nd.content = 'Lorem lipsum dolor sit amet...';\nd.info = 'Info in footer';\nd.addButton('OK', function() {\n\talert('OK button was clicked');\n\td.hide();\n});\nd.show();\n```\n\nIf you want to set some element directly into header or footer, you can set these variables. `Title` and `info` variables\nare just shortcuts for setting texts.\n\n```\nd.header = $('<div>my custom header</div>');\nd.footer = $('<div>my custom footer</div>');\n```\n\n## Changing data of created dialog\n\nThere are three methods for changing data. Unfortunately you can not change everything (just title, content and info).\n\n```\nd.changeTitle('new title');\nd.changeContent('new content');\nd.changeInfo('new info');\n```\n\n## Styling\n\nThis modal dialog comes with one simple style which is sincerely horrible, so I recommend to use your own style. You just\nhave to disable the default one.\n\n```\nDialog.styles = false;\n```\n\nNow you can write your own styles in your css files. Modal dialog has got some classes for you. Names of these classes can\nbe also changed in variable `classes`. Here are the default ones.\n\n```\nDialog.classes = {\n\tcontainer: 'modal_dialog',\n\ttitle: 'title',\n\theader: 'header',\n\tcontent: 'content',\n\tfooter: 'footer',\n\tinfo: 'info',\n\tbuttons: 'buttons',\n\tbutton: 'button',\n};\n```\n\n## Options\n\nSettings described above were default settings, but you can set these options for each dialog separately.\n\n```\nd.show({\n\tstyles: false\n});\n```\n\n### List of options\n\n* width\n* maxHeight\n* duration (speed of animation in jquery)\n* zIndex\n* styles (disable or allow default styles)\n* classes (override default classes names)\n* overlay (list of options for [overlay](https://npmjs.org/package/overlay) package)\n\n## Confirmation dialog\n\nThere is prepared also simple confirmation dialog with two buttons (`OK` and `Cancel`).\n\n```\nvar Confirm = require('modal-dialog/ConfirmDialog');\n\nvar c = new Confirm(window.jQuery, 'Are you really want to continue?');\nc.on('true', function() {\n\talert('You clicked on the OK button');\n});\nc.on('false', function() {\n\talert('You clicked on the Cancel button');\n});\n```\n\nHere is how to set own captions for these two buttons.\n\n```\nvar c = new Confirm(window.jQuery, 'Some question', 'Yes', 'No');\n```\n\n## Events\n\n* `beforeShow` (dialog): Called before dialog is opened\n* `afterShow` (dialog): Called after dialog is opened (after all animations)\n* `beforeHide` (dialog): Called before dialog is closed\n* `afterHide` (dialog): Called after dialog is closed (after all animations)\n* `true` (only confirmations): Called when true button is clicked\n* `false` (only confirmations): Called when false button is clicked\n\nExample:\n```\nd.on('afterShow', function(dialog) {\n\td === dialog; //true\n\n\tconsole.log('Window is open');\n});\n```\n\n## Tests\n\n```\n$ npm test\n```\n\n## Changelog\n\n* 1.6.0\n\t+ Optimizations\n\t+ Added changeTitle, changeContent and changeInfo methods\n\t+ Optimized tests\n\n* 1.5.0\n\t+ onTrue and onFalse in confirmations replaced with eventEmitter events\n\t+ overlay did not hide in some situations\n\n* 1.4.0\n\t+ jQuery must be passed in constructor\n\n* 1.3.3 - 1.3.4\n\t+ Some optimizations\n\t+ Updated tests\n\n* 1.3.2\n\t+ Uses [content-ready](https://npmjs.org/package/content-ready) module\n\t+ Added many other tests\n\n* 1.3.1\n\t+ Added tests\n\n* 1.3.0\n\t+ Instance of EventEmitter\n\t+ Added some events\n\n* 1.2.2 - 1.2.4\n\t+ Showing dialog in right position after all images all loaded\n\n* 1.2.1\n\t+ Bug with custom styles\n\n* 1.2.0\n\t+ Added `isOpen` method\n\n* 1.1.1\n\t+ Some bugs\n\n* 1.1.0\n\t+ Added confirm dialog\n\n* 1.0.0\n\t+ Initial version",
 	  "readmeFilename": "README.md",
 	  "bugs": {
 	    "url": "https://github.com/sakren/node-modal-dialog/issues"
 	  },
-	  "_id": "modal-dialog@1.5.0",
-	  "dist": {
-	    "shasum": "3c752be24f5df60b3491ed40e59ddd0f268731e2"
-	  },
-	  "_from": "modal-dialog@~1.5.0",
-	  "_resolved": "https://registry.npmjs.org/modal-dialog/-/modal-dialog-1.5.0.tgz"
+	  "_id": "modal-dialog@1.6.0",
+	  "_from": "modal-dialog@~1.6.0"
 	}
 	
 	}).call(this);
@@ -10645,6 +10739,8 @@
 		
 		    Dialog.styles = true;
 		
+		    Dialog.prototype.options = null;
+		
 		    Dialog.prototype.title = null;
 		
 		    Dialog.prototype.header = null;
@@ -10667,6 +10763,8 @@
 		
 		    Dialog.prototype.el = null;
 		
+		    Dialog.prototype.elements = null;
+		
 		    function Dialog(jquery) {
 		      var err,
 		        _this = this;
@@ -10686,6 +10784,7 @@
 		      }
 		      $ = jquery;
 		      this.buttons = [];
+		      this.elements = {};
 		      if (Dialog.overlayRegistered === false) {
 		        Dialog.overlayRegistered = true;
 		        Overlay.on('hide', function() {
@@ -10704,194 +10803,262 @@
 		      return this;
 		    };
 		
+		    Dialog.prototype.parseOptions = function(options) {
+		      if (options == null) {
+		        options = {};
+		      }
+		      if (typeof options.width === 'undefined') {
+		        options.width = this.width;
+		      }
+		      if (typeof options.maxHeight === 'undefined') {
+		        options.maxHeight = this.maxHeight;
+		      }
+		      if (typeof options.duration === 'undefined') {
+		        options.duration = this.duration;
+		      }
+		      if (typeof options.zIndex === 'undefined') {
+		        options.zIndex = this.zIndex;
+		      }
+		      if (typeof options.styles === 'undefined') {
+		        options.styles = Dialog.styles;
+		      }
+		      if (typeof options.classes === 'undefined') {
+		        options.classes = {};
+		      }
+		      if (typeof options.overlay === 'undefined') {
+		        options.overlay = {};
+		      }
+		      if (typeof options.classes.container === 'undefined') {
+		        options.classes.container = Dialog.classes.container;
+		      }
+		      if (typeof options.classes.title === 'undefined') {
+		        options.classes.title = Dialog.classes.title;
+		      }
+		      if (typeof options.classes.header === 'undefined') {
+		        options.classes.header = Dialog.classes.header;
+		      }
+		      if (typeof options.classes.content === 'undefined') {
+		        options.classes.content = Dialog.classes.content;
+		      }
+		      if (typeof options.classes.footer === 'undefined') {
+		        options.classes.footer = Dialog.classes.footer;
+		      }
+		      if (typeof options.classes.info === 'undefined') {
+		        options.classes.info = Dialog.classes.info;
+		      }
+		      if (typeof options.classes.buttons === 'undefined') {
+		        options.classes.buttons = Dialog.classes.buttons;
+		      }
+		      if (typeof options.classes.button === 'undefined') {
+		        options.classes.button = Dialog.classes.button;
+		      }
+		      options.overlay.duration = options.duration;
+		      return options;
+		    };
+		
+		    Dialog.prototype.renderHeader = function() {
+		      if (typeof this.elements.header === 'undefined') {
+		        this.elements.header = $('<div>', {
+		          'class': this.options.classes.header
+		        });
+		      }
+		      if (this.header || this.title) {
+		        if (this.header) {
+		          this.elements.header.html(this.header);
+		        } else {
+		          this.elements.header.html('<span class="' + this.options.classes.title + '">' + this.title + '</span>');
+		        }
+		      }
+		      return this.elements.header;
+		    };
+		
+		    Dialog.prototype.renderContent = function() {
+		      if (typeof this.elements.content === 'undefined') {
+		        this.elements.content = $('<div>', {
+		          'class': this.options.classes.content
+		        });
+		      }
+		      if (this.content !== null) {
+		        this.elements.content.html(this.content);
+		      }
+		      return this.elements.content;
+		    };
+		
+		    Dialog.prototype.renderFooter = function() {
+		      var button, _fn, _i, _len, _ref,
+		        _this = this;
+		      if (typeof this.elements.footer === 'undefined') {
+		        this.elements.footer = $('<div>', {
+		          'class': this.options.classes.footer
+		        });
+		      }
+		      if (this.footer || this.info || this.buttons.length > 0) {
+		        if (this.footer) {
+		          this.elements.footer.html(this.footer);
+		        } else {
+		          if (this.info) {
+		            this.elements.info = $('<span class="' + this.options.classes.info + '">' + this.info + '</span>').appendTo(this.elements.footer);
+		          }
+		          if (this.buttons.length > 0) {
+		            this.elements.buttons = $('<div class="' + this.options.classes.buttons + '">');
+		            _ref = this.buttons;
+		            _fn = function(button) {
+		              return $('<a>', {
+		                html: button.title,
+		                href: '#',
+		                'class': _this.options.classes.button,
+		                click: function(e) {
+		                  e.preventDefault();
+		                  return button.action.call(_this);
+		                }
+		              }).appendTo(_this.elements.buttons);
+		            };
+		            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+		              button = _ref[_i];
+		              _fn(button);
+		            }
+		            this.elements.buttons.appendTo(this.elements.footer);
+		          }
+		        }
+		      }
+		      return this.elements.footer;
+		    };
+		
+		    Dialog.prototype.refreshStyles = function(type) {
+		      var styles;
+		      if (type == null) {
+		        type = null;
+		      }
+		      if (type === null || type === 'header') {
+		        if (this.elements.header.html() === '') {
+		          this.elements.header.removeAttr('styles');
+		        } else if (this.options.styles) {
+		          this.elements.header.css({
+		            borderBottom: '1px solid black',
+		            paddingBottom: '8px'
+		          });
+		        }
+		      }
+		      if (type === null || type === 'content') {
+		        styles = {
+		          maxHeight: this.options.maxHeight,
+		          overflow: 'hidden',
+		          overflowX: 'auto',
+		          overflowY: 'auto'
+		        };
+		        if (this.elements.content.html() === '') {
+		          this.elements.content.removeAttr('styles');
+		        } else if (this.options.styles) {
+		          styles.borderBottom = '1px solid black';
+		          styles.paddingTop = '8px';
+		          styles.paddingBottom = '8px';
+		        }
+		        this.elements.content.css(styles);
+		      }
+		      if (type === null || type === 'footer') {
+		        if (this.elements.footer.html() === '') {
+		          return this.elements.footer.removeAttr('styles');
+		        } else if (this.options.styles) {
+		          this.elements.footer.css({
+		            paddingTop: '8px'
+		          });
+		          if (!this.footer && this.buttons.length > 0) {
+		            return this.elements.buttons.css({
+		              float: 'right'
+		            });
+		          }
+		        }
+		      }
+		    };
+		
+		    Dialog.prototype.render = function() {
+		      var styles;
+		      if (this.options === null) {
+		        this.options = this.parseOptions();
+		      }
+		      this.el = $('<div>', {
+		        'class': this.options.classes.container,
+		        css: {
+		          display: 'none',
+		          position: 'fixed',
+		          left: '50%',
+		          top: '50%'
+		        }
+		      }).appendTo($('body'));
+		      styles = {
+		        zIndex: this.options.zIndex,
+		        width: this.options.width,
+		        marginLeft: -(this.options.width / 2),
+		        marginTop: -(this.options.maxHeight / 2)
+		      };
+		      if (this.options.styles) {
+		        styles.border = '1px solid black';
+		        styles.backgroundColor = 'white';
+		        styles.padding = '10px 12px 10px 12px';
+		      }
+		      this.el.css(styles);
+		      this.el.append(this.renderHeader());
+		      this.el.append(this.renderContent());
+		      this.el.append(this.renderFooter());
+		      return this.refreshStyles();
+		    };
+		
+		    Dialog.prototype.moveToCenter = function() {
+		      var deferred,
+		        _this = this;
+		      deferred = Q.defer();
+		      this.el.css({
+		        display: 'block',
+		        visibility: 'hidden'
+		      });
+		      ready(this.el).then(function() {
+		        var height;
+		        height = parseInt(_this.el.css('height'));
+		        _this.el.css({
+		          visibility: 'visible',
+		          marginTop: -(height / 2)
+		        });
+		        return deferred.resolve(_this);
+		      });
+		      return deferred.promise;
+		    };
+		
 		    Dialog.prototype.show = function(options) {
-		      var button, buttons, deferred, done, finish, footer, header, styles, _fn, _i, _len, _ref,
+		      var deferred,
 		        _this = this;
 		      if (options == null) {
 		        options = {};
 		      }
 		      if (Dialog.visible === null) {
 		        this.emit('beforeShow', this);
-		        if (typeof options.width === 'undefined') {
-		          options.width = this.width;
-		        }
-		        if (typeof options.maxHeight === 'undefined') {
-		          options.maxHeight = this.maxHeight;
-		        }
-		        if (typeof options.duration === 'undefined') {
-		          options.duration = this.duration;
-		        }
-		        if (typeof options.zIndex === 'undefined') {
-		          options.zIndex = this.zIndex;
-		        }
-		        if (typeof options.styles === 'undefined') {
-		          options.styles = Dialog.styles;
-		        }
-		        if (typeof options.classes === 'undefined') {
-		          options.classes = {};
-		        }
-		        if (typeof options.overlay === 'undefined') {
-		          options.overlay = {};
-		        }
-		        if (typeof options.classes.container === 'undefined') {
-		          options.classes.container = Dialog.classes.container;
-		        }
-		        if (typeof options.classes.title === 'undefined') {
-		          options.classes.title = Dialog.classes.title;
-		        }
-		        if (typeof options.classes.header === 'undefined') {
-		          options.classes.header = Dialog.classes.header;
-		        }
-		        if (typeof options.classes.content === 'undefined') {
-		          options.classes.content = Dialog.classes.content;
-		        }
-		        if (typeof options.classes.footer === 'undefined') {
-		          options.classes.footer = Dialog.classes.footer;
-		        }
-		        if (typeof options.classes.info === 'undefined') {
-		          options.classes.info = Dialog.classes.info;
-		        }
-		        if (typeof options.classes.buttons === 'undefined') {
-		          options.classes.buttons = Dialog.classes.buttons;
-		        }
-		        if (typeof options.classes.button === 'undefined') {
-		          options.classes.button = Dialog.classes.button;
-		        }
-		        options.overlay.duration = options.duration;
+		        this.options = this.parseOptions(options);
 		        if (this.el === null) {
-		          this.el = $('<div>', {
-		            'class': options.classes.container,
-		            css: {
-		              display: 'none',
-		              position: 'fixed',
-		              left: '50%',
-		              top: '50%'
-		            }
-		          }).appendTo($('body'));
-		          styles = {
-		            zIndex: options.zIndex,
-		            width: options.width,
-		            marginLeft: -(options.width / 2),
-		            marginTop: -(options.maxHeight / 2)
-		          };
-		          if (options.styles) {
-		            styles.border = '1px solid black';
-		            styles.backgroundColor = 'white';
-		            styles.padding = '10px 12px 10px 12px';
-		          }
-		          this.el.css(styles);
-		          if (this.header || this.title) {
-		            header = $('<div>', {
-		              'class': options.classes.header
-		            });
-		            if (options.styles) {
-		              header.css({
-		                borderBottom: '1px solid black',
-		                paddingBottom: '8px'
-		              });
-		            }
-		            if (this.header) {
-		              header.html(this.header);
-		            } else {
-		              header.html('<span class="' + options.classes.title + '">' + this.title + '</span>');
-		            }
-		            header.appendTo(this.el);
-		          }
-		          if (this.content) {
-		            styles = {
-		              maxHeight: options.maxHeight,
-		              overflow: 'hidden',
-		              overflowX: 'auto',
-		              overflowY: 'auto'
-		            };
-		            if (options.styles) {
-		              styles.borderBottom = '1px solid black';
-		              styles.paddingTop = '8px';
-		              styles.paddingBottom = '8px';
-		            }
-		            $('<div>', {
-		              'class': options.classes.content,
-		              html: this.content,
-		              css: styles
-		            }).appendTo(this.el);
-		          }
-		          if (this.footer || this.info || this.buttons.length > 0) {
-		            footer = $('<div>', {
-		              'class': options.classes.footer
-		            });
-		            if (options.styles) {
-		              footer.css({
-		                paddingTop: '8px'
-		              });
-		            }
-		            if (this.footer) {
-		              footer.html(this.footer);
-		            } else {
-		              if (this.info) {
-		                $('<span class="' + options.classes.info + '">' + this.info + '</span>').appendTo(footer);
-		              }
-		              if (this.buttons.length > 0) {
-		                buttons = $('<div class="' + options.classes.buttons + '">');
-		                if (options.styles) {
-		                  buttons.css({
-		                    float: 'right'
-		                  });
-		                }
-		                _ref = this.buttons;
-		                _fn = function(button) {
-		                  return $('<a>', {
-		                    html: button.title,
-		                    href: '#',
-		                    'class': options.classes.button,
-		                    click: function(e) {
-		                      e.preventDefault();
-		                      return button.action.call(_this);
-		                    }
-		                  }).appendTo(buttons);
-		                };
-		                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-		                  button = _ref[_i];
-		                  _fn(button);
-		                }
-		                buttons.appendTo(footer);
-		              }
-		            }
-		            footer.appendTo(this.el);
-		          }
+		          this.render();
 		        }
-		        this.el.css({
-		          display: 'block',
-		          visibility: 'hidden'
-		        });
-		        ready(this.el).then(function() {
-		          var height;
-		          height = parseInt(_this.el.css('height'));
-		          return _this.el.css({
-		            visibility: 'visible',
-		            marginTop: -(height / 2)
-		          });
-		        });
-		        finish = function(deferred) {
-		          _this.emit('afterShow', _this);
-		          return deferred.resolve(_this);
-		        };
 		        deferred = Q.defer();
-		        done = {
-		          overlay: false,
-		          dialog: false
-		        };
-		        Overlay.show(options.overlay).then(function() {
-		          done.overlay = true;
-		          if (done.dialog) {
-		            return finish(deferred);
-		          }
-		        });
-		        this.el.fadeIn(options.duration, function(e) {
-		          Dialog.visible = _this;
-		          done.dialog = true;
-		          if (done.overlay) {
-		            return finish(deferred);
-		          }
+		        this.moveToCenter().then(function() {
+		          var done, finish;
+		          finish = function() {
+		            _this.emit('afterShow', _this);
+		            return deferred.resolve(_this);
+		          };
+		          done = {
+		            overlay: false,
+		            dialog: false
+		          };
+		          Overlay.show(_this.options.overlay).then(function() {
+		            done.overlay = true;
+		            if (done.dialog) {
+		              return finish(deferred);
+		            }
+		          });
+		          return _this.el.fadeIn(_this.options.duration, function(e) {
+		            Dialog.visible = _this;
+		            done.dialog = true;
+		            if (done.overlay) {
+		              return finish(deferred);
+		            }
+		          });
 		        });
 		        return deferred.promise;
 		      } else if (Dialog.visible === this) {
@@ -10919,6 +11086,35 @@
 		        });
 		      }
 		      return deferred.promise;
+		    };
+		
+		    Dialog.prototype.changeTitle = function(title) {
+		      this.title = title;
+		      this.header = null;
+		      this.renderHeader();
+		      this.refreshStyles('header');
+		      return this;
+		    };
+		
+		    Dialog.prototype.changeContent = function(content) {
+		      this.content = content;
+		      if (this.content === null) {
+		        this.elements.content.html('');
+		      }
+		      this.renderContent();
+		      this.refreshStyles('content');
+		      return this;
+		    };
+		
+		    Dialog.prototype.changeInfo = function(info) {
+		      this.info = info;
+		      if (this.info === null && typeof this.elements.info !== 'undefined') {
+		        this.elements.info.remove();
+		        delete this.elements.info;
+		      }
+		      this.renderFooter();
+		      this.refreshStyles('footer');
+		      return this;
 		    };
 		
 		    Dialog.prototype.isOpen = function() {
@@ -11294,11 +11490,8 @@
 		        dialog.on('true', function() {
 		          return done();
 		        });
-		        return dialog.show().then(function() {
-		          var button;
-		          button = $(dialog.el).find('div.buttons a:nth-child(1)');
-		          return button.click();
-		        }).done();
+		        dialog.render();
+		        return dialog.elements.footer.find('div.buttons a:nth-child(1)').click();
 		      });
 		    });
 		    return describe('#on false', function() {
@@ -11306,11 +11499,8 @@
 		        dialog.on('false', function() {
 		          return done();
 		        });
-		        return dialog.show().then(function() {
-		          var button;
-		          button = $(dialog.el).find('div.buttons a:nth-child(2)');
-		          return button.click();
-		        }).done();
+		        dialog.render();
+		        return dialog.elements.footer.find('div.buttons a:nth-child(2)').click();
 		      });
 		    });
 		  });
@@ -11395,71 +11585,46 @@
 		          }).done();
 		        }).done();
 		      });
-		      it('element of new dialog should be empty', function(done) {
-		        return dialog.show().then(function() {
-		          expect(dialog.el.html()).to.be.equal('');
-		          return done();
-		        }).done();
+		      it('element of new dialog should be empty', function() {
+		        dialog.render();
+		        expect(dialog.el.find('div').length).to.be.equal(3);
+		        expect(dialog.el.find('div.header').html()).to.be.equal('');
+		        expect(dialog.el.find('div.content').html()).to.be.equal('');
+		        return expect(dialog.el.find('div.footer').html()).to.be.equal('');
 		      });
-		      it('should set title of dialog', function(done) {
+		      it('should set title of dialog', function() {
+		        var title;
 		        dialog.title = 'some title';
-		        return dialog.show().then(function() {
-		          var title;
-		          title = $(dialog.el).find('div.header span.title');
-		          expect(title.length).to.be.equal(1);
-		          expect(title.html()).to.be.equal('some title');
-		          return done();
-		        }).done();
+		        dialog.render();
+		        title = dialog.elements.header.children('span');
+		        expect(title.length).to.be.equal(1);
+		        return expect(title.html()).to.be.equal('some title');
 		      });
-		      it('should set html header', function(done) {
+		      it('should set html header', function() {
 		        dialog.header = $('<span class="my-header">header</span>');
-		        return dialog.show().then(function() {
-		          var header;
-		          header = $(dialog.el).find('div.header');
-		          expect(header.length).to.be.equal(1);
-		          expect(header.html()).to.be.equal('<span class="my-header">header</span>');
-		          return done();
-		        }).done();
+		        dialog.render();
+		        return expect(dialog.elements.header.html()).to.be.equal('<span class="my-header">header</span>');
 		      });
-		      it('should set some content', function(done) {
+		      it('should set some content', function() {
 		        dialog.content = 'my content';
-		        return dialog.show().then(function() {
-		          var content;
-		          content = $(dialog.el).find('div.content');
-		          expect(content.length).to.be.equal(1);
-		          expect(content.html()).to.be.equal('my content');
-		          return done();
-		        }).done();
+		        dialog.render();
+		        return expect(dialog.elements.content.html()).to.be.equal('my content');
 		      });
-		      it('should add some buttons', function(done) {
+		      it('should add some buttons', function() {
 		        dialog.addButton('ok');
-		        return dialog.show().then(function() {
-		          var buttons;
-		          buttons = $(dialog.el).find('div.buttons a');
-		          expect(buttons.length).to.be.equal(1);
-		          expect(buttons.html()).to.be.equal('ok');
-		          return done();
-		        }).done();
+		        dialog.render();
+		        return expect(dialog.elements.footer.find('div.buttons a').html()).to.be.equal('ok');
 		      });
-		      it('should set simple information text', function(done) {
+		      it('should set simple information text', function() {
 		        dialog.info = 'info text';
-		        return dialog.show().then(function() {
-		          var info;
-		          info = $(dialog.el).find('div.footer span.info');
-		          expect(info.length).to.be.equal(1);
-		          expect(info.html()).to.be.equal('info text');
-		          return done();
-		        }).done();
+		        dialog.render();
+		        expect(dialog.elements).to.contain.keys(['info']);
+		        return expect(dialog.elements.info.html()).to.be.equal('info text');
 		      });
-		      return it('should set html footer', function(done) {
+		      return it('should set html footer', function() {
 		        dialog.footer = $('<div class="my-footer">footer</div>');
-		        return dialog.show().then(function() {
-		          var footer;
-		          footer = $(dialog.el).find('div.footer');
-		          expect(footer.length).to.be.equal(1);
-		          expect(footer.html()).to.be.equal('<div class="my-footer">footer</div>');
-		          return done();
-		        }).done();
+		        dialog.render();
+		        return expect(dialog.elements.footer.html()).to.be.equal('<div class="my-footer">footer</div>');
 		      });
 		    });
 		    describe('#addButton()', function() {
@@ -11472,11 +11637,8 @@
 		        dialog.addButton('ok', function() {
 		          return done();
 		        });
-		        return dialog.show().then(function() {
-		          var button;
-		          button = $(dialog.el).find('div.buttons a');
-		          return button.click();
-		        }).done();
+		        dialog.render();
+		        return dialog.elements.footer.find('div.buttons a').click();
 		      });
 		      return it('should call right button action when it is clicked', function(done) {
 		        dialog.addButton('cancel');
@@ -11484,11 +11646,8 @@
 		          return done();
 		        });
 		        dialog.addButton('close');
-		        return dialog.show().then(function() {
-		          var button;
-		          button = $(dialog.el).find('div.buttons a:nth-child(2)');
-		          return button.click();
-		        });
+		        dialog.render();
+		        return dialog.elements.footer.find('div.buttons a:nth-child(2)').click();
 		      });
 		    });
 		    describe('#isOpen()', function() {
@@ -11510,7 +11669,7 @@
 		        }).done();
 		      });
 		    });
-		    return describe('#hide()', function() {
+		    describe('#hide()', function() {
 		      it('should hide created dialog', function(done) {
 		        return dialog.show().then(function() {
 		          return dialog.hide().then(function() {
@@ -11526,6 +11685,46 @@
 		          expect(err.message).to.be.equal('This window is not open.');
 		          return done();
 		        }).done();
+		      });
+		    });
+		    describe('#changeTitle()', function() {
+		      return it('should change title of dialog', function() {
+		        dialog.title = 'first';
+		        dialog.render();
+		        expect(dialog.elements.header.children('span').html()).to.be.equal('first');
+		        dialog.changeTitle('second');
+		        return expect(dialog.elements.header.children('span').html()).to.be.equal('second');
+		      });
+		    });
+		    describe('#changeContent()', function() {
+		      it('should change content of dialog', function() {
+		        dialog.content = 'first';
+		        dialog.render();
+		        expect(dialog.elements.content.html()).to.be.equal('first');
+		        dialog.changeContent('second');
+		        return expect(dialog.elements.content.html()).to.be.equal('second');
+		      });
+		      return it('should clear content of dialog', function() {
+		        dialog.content = 'text';
+		        dialog.render();
+		        dialog.changeContent(null);
+		        return expect(dialog.elements.content.html()).to.be.equal('');
+		      });
+		    });
+		    return describe('#changeInfo()', function() {
+		      it('should change info of dialog', function() {
+		        dialog.info = 'first';
+		        dialog.render();
+		        expect(dialog.elements.info.html()).to.be.equal('first');
+		        dialog.changeInfo('second');
+		        return expect(dialog.elements.info.html()).to.be.equal('second');
+		      });
+		      return it('should remove old info from dialog', function() {
+		        dialog.info = 'first';
+		        dialog.render();
+		        dialog.changeInfo(null);
+		        expect(dialog.elements.footer.html()).to.be.equal('');
+		        return expect(dialog.elements).not.to.contain.keys(['info']);
 		      });
 		    });
 		  });
@@ -11549,7 +11748,7 @@
 		return {
 			"name": "modal-dialog",
 			"description": "Window modal dialogs for browser",
-			"version": "1.5.0",
+			"version": "1.6.0",
 			"author": {
 				"name": "David Kudera",
 				"email": "sakren@gmail.com"
@@ -11637,6 +11836,8 @@
 		
 		    Dialog.styles = true;
 		
+		    Dialog.prototype.options = null;
+		
 		    Dialog.prototype.title = null;
 		
 		    Dialog.prototype.header = null;
@@ -11659,6 +11860,8 @@
 		
 		    Dialog.prototype.el = null;
 		
+		    Dialog.prototype.elements = null;
+		
 		    function Dialog(jquery) {
 		      var err,
 		        _this = this;
@@ -11678,6 +11881,7 @@
 		      }
 		      $ = jquery;
 		      this.buttons = [];
+		      this.elements = {};
 		      if (Dialog.overlayRegistered === false) {
 		        Dialog.overlayRegistered = true;
 		        Overlay.on('hide', function() {
@@ -11696,194 +11900,262 @@
 		      return this;
 		    };
 		
+		    Dialog.prototype.parseOptions = function(options) {
+		      if (options == null) {
+		        options = {};
+		      }
+		      if (typeof options.width === 'undefined') {
+		        options.width = this.width;
+		      }
+		      if (typeof options.maxHeight === 'undefined') {
+		        options.maxHeight = this.maxHeight;
+		      }
+		      if (typeof options.duration === 'undefined') {
+		        options.duration = this.duration;
+		      }
+		      if (typeof options.zIndex === 'undefined') {
+		        options.zIndex = this.zIndex;
+		      }
+		      if (typeof options.styles === 'undefined') {
+		        options.styles = Dialog.styles;
+		      }
+		      if (typeof options.classes === 'undefined') {
+		        options.classes = {};
+		      }
+		      if (typeof options.overlay === 'undefined') {
+		        options.overlay = {};
+		      }
+		      if (typeof options.classes.container === 'undefined') {
+		        options.classes.container = Dialog.classes.container;
+		      }
+		      if (typeof options.classes.title === 'undefined') {
+		        options.classes.title = Dialog.classes.title;
+		      }
+		      if (typeof options.classes.header === 'undefined') {
+		        options.classes.header = Dialog.classes.header;
+		      }
+		      if (typeof options.classes.content === 'undefined') {
+		        options.classes.content = Dialog.classes.content;
+		      }
+		      if (typeof options.classes.footer === 'undefined') {
+		        options.classes.footer = Dialog.classes.footer;
+		      }
+		      if (typeof options.classes.info === 'undefined') {
+		        options.classes.info = Dialog.classes.info;
+		      }
+		      if (typeof options.classes.buttons === 'undefined') {
+		        options.classes.buttons = Dialog.classes.buttons;
+		      }
+		      if (typeof options.classes.button === 'undefined') {
+		        options.classes.button = Dialog.classes.button;
+		      }
+		      options.overlay.duration = options.duration;
+		      return options;
+		    };
+		
+		    Dialog.prototype.renderHeader = function() {
+		      if (typeof this.elements.header === 'undefined') {
+		        this.elements.header = $('<div>', {
+		          'class': this.options.classes.header
+		        });
+		      }
+		      if (this.header || this.title) {
+		        if (this.header) {
+		          this.elements.header.html(this.header);
+		        } else {
+		          this.elements.header.html('<span class="' + this.options.classes.title + '">' + this.title + '</span>');
+		        }
+		      }
+		      return this.elements.header;
+		    };
+		
+		    Dialog.prototype.renderContent = function() {
+		      if (typeof this.elements.content === 'undefined') {
+		        this.elements.content = $('<div>', {
+		          'class': this.options.classes.content
+		        });
+		      }
+		      if (this.content !== null) {
+		        this.elements.content.html(this.content);
+		      }
+		      return this.elements.content;
+		    };
+		
+		    Dialog.prototype.renderFooter = function() {
+		      var button, _fn, _i, _len, _ref,
+		        _this = this;
+		      if (typeof this.elements.footer === 'undefined') {
+		        this.elements.footer = $('<div>', {
+		          'class': this.options.classes.footer
+		        });
+		      }
+		      if (this.footer || this.info || this.buttons.length > 0) {
+		        if (this.footer) {
+		          this.elements.footer.html(this.footer);
+		        } else {
+		          if (this.info) {
+		            this.elements.info = $('<span class="' + this.options.classes.info + '">' + this.info + '</span>').appendTo(this.elements.footer);
+		          }
+		          if (this.buttons.length > 0) {
+		            this.elements.buttons = $('<div class="' + this.options.classes.buttons + '">');
+		            _ref = this.buttons;
+		            _fn = function(button) {
+		              return $('<a>', {
+		                html: button.title,
+		                href: '#',
+		                'class': _this.options.classes.button,
+		                click: function(e) {
+		                  e.preventDefault();
+		                  return button.action.call(_this);
+		                }
+		              }).appendTo(_this.elements.buttons);
+		            };
+		            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+		              button = _ref[_i];
+		              _fn(button);
+		            }
+		            this.elements.buttons.appendTo(this.elements.footer);
+		          }
+		        }
+		      }
+		      return this.elements.footer;
+		    };
+		
+		    Dialog.prototype.refreshStyles = function(type) {
+		      var styles;
+		      if (type == null) {
+		        type = null;
+		      }
+		      if (type === null || type === 'header') {
+		        if (this.elements.header.html() === '') {
+		          this.elements.header.removeAttr('styles');
+		        } else if (this.options.styles) {
+		          this.elements.header.css({
+		            borderBottom: '1px solid black',
+		            paddingBottom: '8px'
+		          });
+		        }
+		      }
+		      if (type === null || type === 'content') {
+		        styles = {
+		          maxHeight: this.options.maxHeight,
+		          overflow: 'hidden',
+		          overflowX: 'auto',
+		          overflowY: 'auto'
+		        };
+		        if (this.elements.content.html() === '') {
+		          this.elements.content.removeAttr('styles');
+		        } else if (this.options.styles) {
+		          styles.borderBottom = '1px solid black';
+		          styles.paddingTop = '8px';
+		          styles.paddingBottom = '8px';
+		        }
+		        this.elements.content.css(styles);
+		      }
+		      if (type === null || type === 'footer') {
+		        if (this.elements.footer.html() === '') {
+		          return this.elements.footer.removeAttr('styles');
+		        } else if (this.options.styles) {
+		          this.elements.footer.css({
+		            paddingTop: '8px'
+		          });
+		          if (!this.footer && this.buttons.length > 0) {
+		            return this.elements.buttons.css({
+		              float: 'right'
+		            });
+		          }
+		        }
+		      }
+		    };
+		
+		    Dialog.prototype.render = function() {
+		      var styles;
+		      if (this.options === null) {
+		        this.options = this.parseOptions();
+		      }
+		      this.el = $('<div>', {
+		        'class': this.options.classes.container,
+		        css: {
+		          display: 'none',
+		          position: 'fixed',
+		          left: '50%',
+		          top: '50%'
+		        }
+		      }).appendTo($('body'));
+		      styles = {
+		        zIndex: this.options.zIndex,
+		        width: this.options.width,
+		        marginLeft: -(this.options.width / 2),
+		        marginTop: -(this.options.maxHeight / 2)
+		      };
+		      if (this.options.styles) {
+		        styles.border = '1px solid black';
+		        styles.backgroundColor = 'white';
+		        styles.padding = '10px 12px 10px 12px';
+		      }
+		      this.el.css(styles);
+		      this.el.append(this.renderHeader());
+		      this.el.append(this.renderContent());
+		      this.el.append(this.renderFooter());
+		      return this.refreshStyles();
+		    };
+		
+		    Dialog.prototype.moveToCenter = function() {
+		      var deferred,
+		        _this = this;
+		      deferred = Q.defer();
+		      this.el.css({
+		        display: 'block',
+		        visibility: 'hidden'
+		      });
+		      ready(this.el).then(function() {
+		        var height;
+		        height = parseInt(_this.el.css('height'));
+		        _this.el.css({
+		          visibility: 'visible',
+		          marginTop: -(height / 2)
+		        });
+		        return deferred.resolve(_this);
+		      });
+		      return deferred.promise;
+		    };
+		
 		    Dialog.prototype.show = function(options) {
-		      var button, buttons, deferred, done, finish, footer, header, styles, _fn, _i, _len, _ref,
+		      var deferred,
 		        _this = this;
 		      if (options == null) {
 		        options = {};
 		      }
 		      if (Dialog.visible === null) {
 		        this.emit('beforeShow', this);
-		        if (typeof options.width === 'undefined') {
-		          options.width = this.width;
-		        }
-		        if (typeof options.maxHeight === 'undefined') {
-		          options.maxHeight = this.maxHeight;
-		        }
-		        if (typeof options.duration === 'undefined') {
-		          options.duration = this.duration;
-		        }
-		        if (typeof options.zIndex === 'undefined') {
-		          options.zIndex = this.zIndex;
-		        }
-		        if (typeof options.styles === 'undefined') {
-		          options.styles = Dialog.styles;
-		        }
-		        if (typeof options.classes === 'undefined') {
-		          options.classes = {};
-		        }
-		        if (typeof options.overlay === 'undefined') {
-		          options.overlay = {};
-		        }
-		        if (typeof options.classes.container === 'undefined') {
-		          options.classes.container = Dialog.classes.container;
-		        }
-		        if (typeof options.classes.title === 'undefined') {
-		          options.classes.title = Dialog.classes.title;
-		        }
-		        if (typeof options.classes.header === 'undefined') {
-		          options.classes.header = Dialog.classes.header;
-		        }
-		        if (typeof options.classes.content === 'undefined') {
-		          options.classes.content = Dialog.classes.content;
-		        }
-		        if (typeof options.classes.footer === 'undefined') {
-		          options.classes.footer = Dialog.classes.footer;
-		        }
-		        if (typeof options.classes.info === 'undefined') {
-		          options.classes.info = Dialog.classes.info;
-		        }
-		        if (typeof options.classes.buttons === 'undefined') {
-		          options.classes.buttons = Dialog.classes.buttons;
-		        }
-		        if (typeof options.classes.button === 'undefined') {
-		          options.classes.button = Dialog.classes.button;
-		        }
-		        options.overlay.duration = options.duration;
+		        this.options = this.parseOptions(options);
 		        if (this.el === null) {
-		          this.el = $('<div>', {
-		            'class': options.classes.container,
-		            css: {
-		              display: 'none',
-		              position: 'fixed',
-		              left: '50%',
-		              top: '50%'
-		            }
-		          }).appendTo($('body'));
-		          styles = {
-		            zIndex: options.zIndex,
-		            width: options.width,
-		            marginLeft: -(options.width / 2),
-		            marginTop: -(options.maxHeight / 2)
-		          };
-		          if (options.styles) {
-		            styles.border = '1px solid black';
-		            styles.backgroundColor = 'white';
-		            styles.padding = '10px 12px 10px 12px';
-		          }
-		          this.el.css(styles);
-		          if (this.header || this.title) {
-		            header = $('<div>', {
-		              'class': options.classes.header
-		            });
-		            if (options.styles) {
-		              header.css({
-		                borderBottom: '1px solid black',
-		                paddingBottom: '8px'
-		              });
-		            }
-		            if (this.header) {
-		              header.html(this.header);
-		            } else {
-		              header.html('<span class="' + options.classes.title + '">' + this.title + '</span>');
-		            }
-		            header.appendTo(this.el);
-		          }
-		          if (this.content) {
-		            styles = {
-		              maxHeight: options.maxHeight,
-		              overflow: 'hidden',
-		              overflowX: 'auto',
-		              overflowY: 'auto'
-		            };
-		            if (options.styles) {
-		              styles.borderBottom = '1px solid black';
-		              styles.paddingTop = '8px';
-		              styles.paddingBottom = '8px';
-		            }
-		            $('<div>', {
-		              'class': options.classes.content,
-		              html: this.content,
-		              css: styles
-		            }).appendTo(this.el);
-		          }
-		          if (this.footer || this.info || this.buttons.length > 0) {
-		            footer = $('<div>', {
-		              'class': options.classes.footer
-		            });
-		            if (options.styles) {
-		              footer.css({
-		                paddingTop: '8px'
-		              });
-		            }
-		            if (this.footer) {
-		              footer.html(this.footer);
-		            } else {
-		              if (this.info) {
-		                $('<span class="' + options.classes.info + '">' + this.info + '</span>').appendTo(footer);
-		              }
-		              if (this.buttons.length > 0) {
-		                buttons = $('<div class="' + options.classes.buttons + '">');
-		                if (options.styles) {
-		                  buttons.css({
-		                    float: 'right'
-		                  });
-		                }
-		                _ref = this.buttons;
-		                _fn = function(button) {
-		                  return $('<a>', {
-		                    html: button.title,
-		                    href: '#',
-		                    'class': options.classes.button,
-		                    click: function(e) {
-		                      e.preventDefault();
-		                      return button.action.call(_this);
-		                    }
-		                  }).appendTo(buttons);
-		                };
-		                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-		                  button = _ref[_i];
-		                  _fn(button);
-		                }
-		                buttons.appendTo(footer);
-		              }
-		            }
-		            footer.appendTo(this.el);
-		          }
+		          this.render();
 		        }
-		        this.el.css({
-		          display: 'block',
-		          visibility: 'hidden'
-		        });
-		        ready(this.el).then(function() {
-		          var height;
-		          height = parseInt(_this.el.css('height'));
-		          return _this.el.css({
-		            visibility: 'visible',
-		            marginTop: -(height / 2)
-		          });
-		        });
-		        finish = function(deferred) {
-		          _this.emit('afterShow', _this);
-		          return deferred.resolve(_this);
-		        };
 		        deferred = Q.defer();
-		        done = {
-		          overlay: false,
-		          dialog: false
-		        };
-		        Overlay.show(options.overlay).then(function() {
-		          done.overlay = true;
-		          if (done.dialog) {
-		            return finish(deferred);
-		          }
-		        });
-		        this.el.fadeIn(options.duration, function(e) {
-		          Dialog.visible = _this;
-		          done.dialog = true;
-		          if (done.overlay) {
-		            return finish(deferred);
-		          }
+		        this.moveToCenter().then(function() {
+		          var done, finish;
+		          finish = function() {
+		            _this.emit('afterShow', _this);
+		            return deferred.resolve(_this);
+		          };
+		          done = {
+		            overlay: false,
+		            dialog: false
+		          };
+		          Overlay.show(_this.options.overlay).then(function() {
+		            done.overlay = true;
+		            if (done.dialog) {
+		              return finish(deferred);
+		            }
+		          });
+		          return _this.el.fadeIn(_this.options.duration, function(e) {
+		            Dialog.visible = _this;
+		            done.dialog = true;
+		            if (done.overlay) {
+		              return finish(deferred);
+		            }
+		          });
 		        });
 		        return deferred.promise;
 		      } else if (Dialog.visible === this) {
@@ -11911,6 +12183,35 @@
 		        });
 		      }
 		      return deferred.promise;
+		    };
+		
+		    Dialog.prototype.changeTitle = function(title) {
+		      this.title = title;
+		      this.header = null;
+		      this.renderHeader();
+		      this.refreshStyles('header');
+		      return this;
+		    };
+		
+		    Dialog.prototype.changeContent = function(content) {
+		      this.content = content;
+		      if (this.content === null) {
+		        this.elements.content.html('');
+		      }
+		      this.renderContent();
+		      this.refreshStyles('content');
+		      return this;
+		    };
+		
+		    Dialog.prototype.changeInfo = function(info) {
+		      this.info = info;
+		      if (this.info === null && typeof this.elements.info !== 'undefined') {
+		        this.elements.info.remove();
+		        delete this.elements.info;
+		      }
+		      this.renderFooter();
+		      this.refreshStyles('footer');
+		      return this;
 		    };
 		
 		    Dialog.prototype.isOpen = function() {
@@ -12030,7 +12331,7 @@
 		  "readme": "[![Build Status](https://secure.travis-ci.org/kriskowal/q.png?branch=master)](http://travis-ci.org/kriskowal/q)\n\n<a href=\"http://promises-aplus.github.com/promises-spec\">\n    <img src=\"http://promises-aplus.github.com/promises-spec/assets/logo-small.png\"\n         align=\"right\" alt=\"Promises/A+ logo\" />\n</a>\n\nIf a function cannot return a value or throw an exception without\nblocking, it can return a promise instead.  A promise is an object\nthat represents the return value or the thrown exception that the\nfunction may eventually provide.  A promise can also be used as a\nproxy for a [remote object][Q-Connection] to overcome latency.\n\n[Q-Connection]: https://github.com/kriskowal/q-connection\n\nOn the first pass, promises can mitigate the “[Pyramid of\nDoom][POD]”: the situation where code marches to the right faster\nthan it marches forward.\n\n[POD]: http://calculist.org/blog/2011/12/14/why-coroutines-wont-work-on-the-web/\n\n```javascript\nstep1(function (value1) {\n    step2(value1, function(value2) {\n        step3(value2, function(value3) {\n            step4(value3, function(value4) {\n                // Do something with value4\n            });\n        });\n    });\n});\n```\n\nWith a promise library, you can flatten the pyramid.\n\n```javascript\nQ.fcall(promisedStep1)\n.then(promisedStep2)\n.then(promisedStep3)\n.then(promisedStep4)\n.then(function (value4) {\n    // Do something with value4\n})\n.catch(function (error) {\n    // Handle any error from all above steps\n})\n.done();\n```\n\nWith this approach, you also get implicit error propagation, just like `try`,\n`catch`, and `finally`.  An error in `promisedStep1` will flow all the way to\nthe `catch` function, where it’s caught and handled.  (Here `promisedStepN` is\na version of `stepN` that returns a promise.)\n\nThe callback approach is called an “inversion of control”.\nA function that accepts a callback instead of a return value\nis saying, “Don’t call me, I’ll call you.”.  Promises\n[un-invert][IOC] the inversion, cleanly separating the input\narguments from control flow arguments.  This simplifies the\nuse and creation of API’s, particularly variadic,\nrest and spread arguments.\n\n[IOC]: http://www.slideshare.net/domenicdenicola/callbacks-promises-and-coroutines-oh-my-the-evolution-of-asynchronicity-in-javascript\n\n\n## Getting Started\n\nThe Q module can be loaded as:\n\n-   A ``<script>`` tag (creating a ``Q`` global variable): ~2.5 KB minified and\n    gzipped.\n-   A Node.js and CommonJS module, available in [npm](https://npmjs.org/) as\n    the [q](https://npmjs.org/package/q) package\n-   An AMD module\n-   A [component](https://github.com/component/component) as ``microjs/q``\n-   Using [bower](http://bower.io/) as ``q``\n-   Using [NuGet](http://nuget.org/) as [Q](https://nuget.org/packages/q)\n\nQ can exchange promises with jQuery, Dojo, When.js, WinJS, and more.\n\n## Resources\n\nOur [wiki][] contains a number of useful resources, including:\n\n- A method-by-method [Q API reference][reference].\n- A growing [examples gallery][examples], showing how Q can be used to make\n  everything better. From XHR to database access to accessing the Flickr API,\n  Q is there for you.\n- There are many libraries that produce and consume Q promises for everything\n  from file system/database access or RPC to templating. For a list of some of\n  the more popular ones, see [Libraries][].\n- If you want materials that introduce the promise concept generally, and the\n  below tutorial isn't doing it for you, check out our collection of\n  [presentations, blog posts, and podcasts][resources].\n- A guide for those [coming from jQuery's `$.Deferred`][jquery].\n\nWe'd also love to have you join the Q-Continuum [mailing list][].\n\n[wiki]: https://github.com/kriskowal/q/wiki\n[reference]: https://github.com/kriskowal/q/wiki/API-Reference\n[examples]: https://github.com/kriskowal/q/wiki/Examples-Gallery\n[Libraries]: https://github.com/kriskowal/q/wiki/Libraries\n[resources]: https://github.com/kriskowal/q/wiki/General-Promise-Resources\n[jquery]: https://github.com/kriskowal/q/wiki/Coming-from-jQuery\n[mailing list]: https://groups.google.com/forum/#!forum/q-continuum\n\n\n## Tutorial\n\nPromises have a ``then`` method, which you can use to get the eventual\nreturn value (fulfillment) or thrown exception (rejection).\n\n```javascript\npromiseMeSomething()\n.then(function (value) {\n}, function (reason) {\n});\n```\n\nIf ``promiseMeSomething`` returns a promise that gets fulfilled later\nwith a return value, the first function (the fulfillment handler) will be\ncalled with the value.  However, if the ``promiseMeSomething`` function\ngets rejected later by a thrown exception, the second function (the\nrejection handler) will be called with the exception.\n\nNote that resolution of a promise is always asynchronous: that is, the\nfulfillment or rejection handler will always be called in the next turn of the\nevent loop (i.e. `process.nextTick` in Node). This gives you a nice\nguarantee when mentally tracing the flow of your code, namely that\n``then`` will always return before either handler is executed.\n\nIn this tutorial, we begin with how to consume and work with promises. We'll\ntalk about how to create them, and thus create functions like\n`promiseMeSomething` that return promises, [below](#the-beginning).\n\n\n### Propagation\n\nThe ``then`` method returns a promise, which in this example, I’m\nassigning to ``outputPromise``.\n\n```javascript\nvar outputPromise = getInputPromise()\n.then(function (input) {\n}, function (reason) {\n});\n```\n\nThe ``outputPromise`` variable becomes a new promise for the return\nvalue of either handler.  Since a function can only either return a\nvalue or throw an exception, only one handler will ever be called and it\nwill be responsible for resolving ``outputPromise``.\n\n-   If you return a value in a handler, ``outputPromise`` will get\n    fulfilled.\n\n-   If you throw an exception in a handler, ``outputPromise`` will get\n    rejected.\n\n-   If you return a **promise** in a handler, ``outputPromise`` will\n    “become” that promise.  Being able to become a new promise is useful\n    for managing delays, combining results, or recovering from errors.\n\nIf the ``getInputPromise()`` promise gets rejected and you omit the\nrejection handler, the **error** will go to ``outputPromise``:\n\n```javascript\nvar outputPromise = getInputPromise()\n.then(function (value) {\n});\n```\n\nIf the input promise gets fulfilled and you omit the fulfillment handler, the\n**value** will go to ``outputPromise``:\n\n```javascript\nvar outputPromise = getInputPromise()\n.then(null, function (error) {\n});\n```\n\nQ promises provide a ``fail`` shorthand for ``then`` when you are only\ninterested in handling the error:\n\n```javascript\nvar outputPromise = getInputPromise()\n.fail(function (error) {\n});\n```\n\nIf you are writing JavaScript for modern engines only or using\nCoffeeScript, you may use `catch` instead of `fail`.\n\nPromises also have a ``fin`` function that is like a ``finally`` clause.\nThe final handler gets called, with no arguments, when the promise\nreturned by ``getInputPromise()`` either returns a value or throws an\nerror.  The value returned or error thrown by ``getInputPromise()``\npasses directly to ``outputPromise`` unless the final handler fails, and\nmay be delayed if the final handler returns a promise.\n\n```javascript\nvar outputPromise = getInputPromise()\n.fin(function () {\n    // close files, database connections, stop servers, conclude tests\n});\n```\n\n-   If the handler returns a value, the value is ignored\n-   If the handler throws an error, the error passes to ``outputPromise``\n-   If the handler returns a promise, ``outputPromise`` gets postponed.  The\n    eventual value or error has the same effect as an immediate return\n    value or thrown error: a value would be ignored, an error would be\n    forwarded.\n\nIf you are writing JavaScript for modern engines only or using\nCoffeeScript, you may use `finally` instead of `fin`.\n\n### Chaining\n\nThere are two ways to chain promises.  You can chain promises either\ninside or outside handlers.  The next two examples are equivalent.\n\n```javascript\nreturn getUsername()\n.then(function (username) {\n    return getUser(username)\n    .then(function (user) {\n        // if we get here without an error,\n        // the value returned here\n        // or the exception thrown here\n        // resolves the promise returned\n        // by the first line\n    })\n});\n```\n\n```javascript\nreturn getUsername()\n.then(function (username) {\n    return getUser(username);\n})\n.then(function (user) {\n    // if we get here without an error,\n    // the value returned here\n    // or the exception thrown here\n    // resolves the promise returned\n    // by the first line\n});\n```\n\nThe only difference is nesting.  It’s useful to nest handlers if you\nneed to capture multiple input values in your closure.\n\n```javascript\nfunction authenticate() {\n    return getUsername()\n    .then(function (username) {\n        return getUser(username);\n    })\n    // chained because we will not need the user name in the next event\n    .then(function (user) {\n        return getPassword()\n        // nested because we need both user and password next\n        .then(function (password) {\n            if (user.passwordHash !== hash(password)) {\n                throw new Error(\"Can't authenticate\");\n            }\n        });\n    });\n}\n```\n\n\n### Combination\n\nYou can turn an array of promises into a promise for the whole,\nfulfilled array using ``all``.\n\n```javascript\nreturn Q.all([\n    eventualAdd(2, 2),\n    eventualAdd(10, 20)\n]);\n```\n\nIf you have a promise for an array, you can use ``spread`` as a\nreplacement for ``then``.  The ``spread`` function “spreads” the\nvalues over the arguments of the fulfillment handler.  The rejection handler\nwill get called at the first sign of failure.  That is, whichever of\nthe recived promises fails first gets handled by the rejection handler.\n\n```javascript\nfunction eventualAdd(a, b) {\n    return Q.spread([a, b], function (a, b) {\n        return a + b;\n    })\n}\n```\n\nBut ``spread`` calls ``all`` initially, so you can skip it in chains.\n\n```javascript\nreturn getUsername()\n.then(function (username) {\n    return [username, getUser(username)];\n})\n.spread(function (username, user) {\n});\n```\n\nThe ``all`` function returns a promise for an array of values.  When this\npromise is fulfilled, the array contains the fulfillment values of the original\npromises, in the same order as those promises.  If one of the given promises\nis rejected, the returned promise is immediately rejected, not waiting for the\nrest of the batch.  If you want to wait for all of the promises to either be\nfulfilled or rejected, you can use ``allSettled``.\n\n```javascript\nQ.allSettled(promises)\n.then(function (results) {\n    results.forEach(function (result) {\n        if (result.state === \"fulfilled\") {\n            var value = result.value;\n        } else {\n            var reason = result.reason;\n        }\n    });\n});\n```\n\n\n### Sequences\n\nIf you have a number of promise-producing functions that need\nto be run sequentially, you can of course do so manually:\n\n```javascript\nreturn foo(initialVal).then(bar).then(baz).then(qux);\n```\n\nHowever, if you want to run a dynamically constructed sequence of\nfunctions, you'll want something like this:\n\n```javascript\nvar funcs = [foo, bar, baz, qux];\n\nvar result = Q(initialVal);\nfuncs.forEach(function (f) {\n    result = result.then(f);\n});\nreturn result;\n```\n\nYou can make this slightly more compact using `reduce`:\n\n```javascript\nreturn funcs.reduce(function (soFar, f) {\n    return soFar.then(f);\n}, Q(initialVal));\n```\n\nOr, you could use th ultra-compact version:\n\n```javascript\nreturn funcs.reduce(Q.when, Q());\n```\n\n### Handling Errors\n\nOne sometimes-unintuive aspect of promises is that if you throw an\nexception in the fulfillment handler, it will not be be caught by the error\nhandler.\n\n```javascript\nreturn foo()\n.then(function (value) {\n    throw new Error(\"Can't bar.\");\n}, function (error) {\n    // We only get here if \"foo\" fails\n});\n```\n\nTo see why this is, consider the parallel between promises and\n``try``/``catch``. We are ``try``-ing to execute ``foo()``: the error\nhandler represents a ``catch`` for ``foo()``, while the fulfillment handler\nrepresents code that happens *after* the ``try``/``catch`` block.\nThat code then needs its own ``try``/``catch`` block.\n\nIn terms of promises, this means chaining your rejection handler:\n\n```javascript\nreturn foo()\n.then(function (value) {\n    throw new Error(\"Can't bar.\");\n})\n.fail(function (error) {\n    // We get here with either foo's error or bar's error\n});\n```\n\n### Progress Notification\n\nIt's possible for promises to report their progress, e.g. for tasks that take a\nlong time like a file upload. Not all promises will implement progress\nnotifications, but for those that do, you can consume the progress values using\na third parameter to ``then``:\n\n```javascript\nreturn uploadFile()\n.then(function () {\n    // Success uploading the file\n}, function (err) {\n    // There was an error, and we get the reason for error\n}, function (progress) {\n    // We get notified of the upload's progress as it is executed\n});\n```\n\nLike `fail`, Q also provides a shorthand for progress callbacks\ncalled `progress`:\n\n```javascript\nreturn uploadFile().progress(function (progress) {\n    // We get notified of the upload's progress\n});\n```\n\n### The End\n\nWhen you get to the end of a chain of promises, you should either\nreturn the last promise or end the chain.  Since handlers catch\nerrors, it’s an unfortunate pattern that the exceptions can go\nunobserved.\n\nSo, either return it,\n\n```javascript\nreturn foo()\n.then(function () {\n    return \"bar\";\n});\n```\n\nOr, end it.\n\n```javascript\nfoo()\n.then(function () {\n    return \"bar\";\n})\n.done();\n```\n\nEnding a promise chain makes sure that, if an error doesn’t get\nhandled before the end, it will get rethrown and reported.\n\nThis is a stopgap. We are exploring ways to make unhandled errors\nvisible without any explicit handling.\n\n\n### The Beginning\n\nEverything above assumes you get a promise from somewhere else.  This\nis the common case.  Every once in a while, you will need to create a\npromise from scratch.\n\n#### Using ``Q.fcall``\n\nYou can create a promise from a value using ``Q.fcall``.  This returns a\npromise for 10.\n\n```javascript\nreturn Q.fcall(function () {\n    return 10;\n});\n```\n\nYou can also use ``fcall`` to get a promise for an exception.\n\n```javascript\nreturn Q.fcall(function () {\n    throw new Error(\"Can't do it\");\n});\n```\n\nAs the name implies, ``fcall`` can call functions, or even promised\nfunctions.  This uses the ``eventualAdd`` function above to add two\nnumbers.\n\n```javascript\nreturn Q.fcall(eventualAdd, 2, 2);\n```\n\n\n#### Using Deferreds\n\nIf you have to interface with asynchronous functions that are callback-based\ninstead of promise-based, Q provides a few shortcuts (like ``Q.nfcall`` and\nfriends). But much of the time, the solution will be to use *deferreds*.\n\n```javascript\nvar deferred = Q.defer();\nFS.readFile(\"foo.txt\", \"utf-8\", function (error, text) {\n    if (error) {\n        deferred.reject(new Error(error));\n    } else {\n        deferred.resolve(text);\n    }\n});\nreturn deferred.promise;\n```\n\nNote that a deferred can be resolved with a value or a promise.  The\n``reject`` function is a shorthand for resolving with a rejected\npromise.\n\n```javascript\n// this:\ndeferred.reject(new Error(\"Can't do it\"));\n\n// is shorthand for:\nvar rejection = Q.fcall(function () {\n    throw new Error(\"Can't do it\");\n});\ndeferred.resolve(rejection);\n```\n\nThis is a simplified implementation of ``Q.delay``.\n\n```javascript\nfunction delay(ms) {\n    var deferred = Q.defer();\n    setTimeout(deferred.resolve, ms);\n    return deferred.promise;\n}\n```\n\nThis is a simplified implementation of ``Q.timeout``\n\n```javascript\nfunction timeout(promise, ms) {\n    var deferred = Q.defer();\n    Q.when(promise, deferred.resolve);\n    delay(ms).then(function () {\n        deferred.reject(new Error(\"Timed out\"));\n    });\n    return deferred.promise;\n}\n```\n\nFinally, you can send a progress notification to the promise with\n``deferred.notify``.\n\nFor illustration, this is a wrapper for XML HTTP requests in the browser. Note\nthat a more [thorough][XHR] implementation would be in order in practice.\n\n[XHR]: https://github.com/montagejs/mr/blob/71e8df99bb4f0584985accd6f2801ef3015b9763/browser.js#L29-L73\n\n```javascript\nfunction requestOkText(url) {\n    var request = new XMLHttpRequest();\n    var deferred = Q.defer();\n\n    request.open(\"GET\", url, true);\n    request.onload = onload;\n    request.onerror = onerror;\n    request.onprogress = onprogress;\n    request.send();\n\n    function onload() {\n        if (request.status === 200) {\n            deferred.resolve(request.responseText);\n        } else {\n            deferred.reject(new Error(\"Status code was \" + request.status));\n        }\n    }\n\n    function onerror() {\n        deferred.reject(new Error(\"Can't XHR \" + JSON.stringify(url)));\n    }\n\n    function onprogress(event) {\n        deferred.notify(event.loaded / event.total);\n    }\n\n    return deferred.promise;\n}\n```\n\nBelow is an example of how to use this ``requestOkText`` function:\n\n```javascript\nrequestOkText(\"http://localhost:3000\")\n.then(function (responseText) {\n    // If the HTTP response returns 200 OK, log the response text.\n    console.log(responseText);\n}, function (error) {\n    // If there's an error or a non-200 status code, log the error.\n    console.error(error);\n}, function (progress) {\n    // Log the progress as it comes in.\n    console.log(\"Request progress: \" + Math.round(progress * 100) + \"%\");\n});\n```\n\n### The Middle\n\nIf you are using a function that may return a promise, but just might\nreturn a value if it doesn’t need to defer, you can use the “static”\nmethods of the Q library.\n\nThe ``when`` function is the static equivalent for ``then``.\n\n```javascript\nreturn Q.when(valueOrPromise, function (value) {\n}, function (error) {\n});\n```\n\nAll of the other methods on a promise have static analogs with the\nsame name.\n\nThe following are equivalent:\n\n```javascript\nreturn Q.all([a, b]);\n```\n\n```javascript\nreturn Q.fcall(function () {\n    return [a, b];\n})\n.all();\n```\n\nWhen working with promises provided by other libraries, you should\nconvert it to a Q promise.  Not all promise libraries make the same\nguarantees as Q and certainly don’t provide all of the same methods.\nMost libraries only provide a partially functional ``then`` method.\nThis thankfully is all we need to turn them into vibrant Q promises.\n\n```javascript\nreturn Q($.ajax(...))\n.then(function () {\n});\n```\n\nIf there is any chance that the promise you receive is not a Q promise\nas provided by your library, you should wrap it using a Q function.\nYou can even use ``Q.invoke`` as a shorthand.\n\n```javascript\nreturn Q.invoke($, 'ajax', ...)\n.then(function () {\n});\n```\n\n\n### Over the Wire\n\nA promise can serve as a proxy for another object, even a remote\nobject.  There are methods that allow you to optimistically manipulate\nproperties or call functions.  All of these interactions return\npromises, so they can be chained.\n\n```\ndirect manipulation         using a promise as a proxy\n--------------------------  -------------------------------\nvalue.foo                   promise.get(\"foo\")\nvalue.foo = value           promise.put(\"foo\", value)\ndelete value.foo            promise.del(\"foo\")\nvalue.foo(...args)          promise.post(\"foo\", [args])\nvalue.foo(...args)          promise.invoke(\"foo\", ...args)\nvalue(...args)              promise.fapply([args])\nvalue(...args)              promise.fcall(...args)\n```\n\nIf the promise is a proxy for a remote object, you can shave\nround-trips by using these functions instead of ``then``.  To take\nadvantage of promises for remote objects, check out [Q-Connection][].\n\n[Q-Connection]: https://github.com/kriskowal/q-connection\n\nEven in the case of non-remote objects, these methods can be used as\nshorthand for particularly-simple fulfillment handlers. For example, you\ncan replace\n\n```javascript\nreturn Q.fcall(function () {\n    return [{ foo: \"bar\" }, { foo: \"baz\" }];\n})\n.then(function (value) {\n    return value[0].foo;\n});\n```\n\nwith\n\n```javascript\nreturn Q.fcall(function () {\n    return [{ foo: \"bar\" }, { foo: \"baz\" }];\n})\n.get(0)\n.get(\"foo\");\n```\n\n\n### Adapting Node\n\nIf you're working with functions that make use of the Node.js callback pattern,\nwhere callbacks are in the form of `function(err, result)`, Q provides a few\nuseful utility functions for converting between them. The most straightforward\nare probably `Q.nfcall` and `Q.nfapply` (\"Node function call/apply\") for calling\nNode.js-style functions and getting back a promise:\n\n```javascript\nreturn Q.nfcall(FS.readFile, \"foo.txt\", \"utf-8\");\nreturn Q.nfapply(FS.readFile, [\"foo.txt\", \"utf-8\"]);\n```\n\nIf you are working with methods, instead of simple functions, you can easily\nrun in to the usual problems where passing a method to another function—like\n`Q.nfcall`—\"un-binds\" the method from its owner. To avoid this, you can either\nuse `Function.prototype.bind` or some nice shortcut methods we provide:\n\n```javascript\nreturn Q.ninvoke(redisClient, \"get\", \"user:1:id\");\nreturn Q.npost(redisClient, \"get\", [\"user:1:id\"]);\n```\n\nYou can also create reusable wrappers with `Q.denodeify` or `Q.nbind`:\n\n```javascript\nvar readFile = Q.denodeify(FS.readFile);\nreturn readFile(\"foo.txt\", \"utf-8\");\n\nvar redisClientGet = Q.nbind(redisClient.get, redisClient);\nreturn redisClientGet(\"user:1:id\");\n```\n\nFinally, if you're working with raw deferred objects, there is a\n`makeNodeResolver` method on deferreds that can be handy:\n\n```javascript\nvar deferred = Q.defer();\nFS.readFile(\"foo.txt\", \"utf-8\", deferred.makeNodeResolver());\nreturn deferred.promise;\n```\n\n### Long Stack Traces\n\nQ comes with optional support for “long stack traces,” wherein the `stack`\nproperty of `Error` rejection reasons is rewritten to be traced along\nasynchronous jumps instead of stopping at the most recent one. As an example:\n\n```js\nfunction theDepthsOfMyProgram() {\n  Q.delay(100).done(function explode() {\n    throw new Error(\"boo!\");\n  });\n}\n\ntheDepthsOfMyProgram();\n```\n\nusually would give a rather unhelpful stack trace looking something like\n\n```\nError: boo!\n    at explode (/path/to/test.js:3:11)\n    at _fulfilled (/path/to/test.js:q:54)\n    at resolvedValue.promiseDispatch.done (/path/to/q.js:823:30)\n    at makePromise.promise.promiseDispatch (/path/to/q.js:496:13)\n    at pending (/path/to/q.js:397:39)\n    at process.startup.processNextTick.process._tickCallback (node.js:244:9)\n```\n\nBut, if you turn this feature on by setting\n\n```js\nQ.longStackSupport = true;\n```\n\nthen the above code gives a nice stack trace to the tune of\n\n```\nError: boo!\n    at explode (/path/to/test.js:3:11)\nFrom previous event:\n    at theDepthsOfMyProgram (/path/to/test.js:2:16)\n    at Object.<anonymous> (/path/to/test.js:7:1)\n```\n\nNote how you can see the the function that triggered the async operation in the\nstack trace! This is very helpful for debugging, as otherwise you end up getting\nonly the first line, plus a bunch of Q internals, with no sign of where the\noperation started.\n\nThis feature does come with somewhat-serious performance and memory overhead,\nhowever. If you're working with lots of promises, or trying to scale a server\nto many users, you should probably keep it off. But in development, go for it!\n\n## Tests\n\nYou can view the results of the Q test suite [in your browser][tests]!\n\n[tests]: https://rawgithub.com/kriskowal/q/master/spec/q-spec.html\n\n## License\n\nCopyright 2009–2013 Kristopher Michael Kowal\nMIT License (enclosed)\n\n",
 		  "readmeFilename": "README.md",
 		  "_id": "q@0.9.7",
-		  "_from": "q@latest"
+		  "_from": "q@~0.9.7"
 		}
 		
 		}).call(this);
@@ -12084,7 +12385,7 @@
 		    "url": "https://github.com/sakren/node-overlay/issues"
 		  },
 		  "_id": "overlay@1.2.4",
-		  "_from": "overlay@latest"
+		  "_from": "overlay@~1.2.4"
 		}
 		
 		}).call(this);
@@ -12142,7 +12443,7 @@
 		    "url": "https://github.com/sakren/node-content-ready/issues"
 		  },
 		  "_id": "content-ready@1.0.0",
-		  "_from": "content-ready@latest"
+		  "_from": "content-ready@~1.0.0"
 		}
 		
 		}).call(this);
@@ -12366,7 +12667,8 @@
 	        tree.changeSelection('linux');
 	        checked = tree.getContent().find('input[type="checkbox"]:checked');
 	        expect(checked.length).to.be.equal(1);
-	        return expect(checked.val()).to.be.equal('linux');
+	        expect(checked.val()).to.be.equal('linux');
+	        return expect(tree.dialog.elements.info.html()).to.be.equal('Selected items: 1');
 	      });
 	      return it('should change selection of group', function() {
 	        var checked, values;
@@ -12377,7 +12679,8 @@
 	          return values.push($(this).val());
 	        });
 	        expect(checked.length).to.be.equal(6);
-	        return expect(values).to.be.eql(['mobileOs', 'android', 'ios', 'windowsPhone', 'symbian', 'blackBerry']);
+	        expect(values).to.be.eql(['mobileOs', 'android', 'ios', 'windowsPhone', 'symbian', 'blackBerry']);
+	        return expect(tree.dialog.elements.info.html()).to.be.equal('Selected items: 6');
 	      });
 	    });
 	    describe('#minimize()', function() {
@@ -13108,7 +13411,7 @@
 		},
 		"main": "./lib/Tree.js",
 		"dependencies": {
-			"modal-dialog": "~1.5.0",
+			"modal-dialog": "~1.6.0",
 			"q": "~0.9.7"
 		},
 		"devDependencies": {
@@ -13153,7 +13456,8 @@
 	      closeButton: 'OK',
 	      summaryRemove: 'Remove',
 	      summaryShow: 'Show all',
-	      summaryHide: 'Hide'
+	      summaryHide: 'Hide',
+	      selected: 'Selected items: %s'
 	    };
 	
 	    Tree.prototype.num = 0;
@@ -13244,12 +13548,13 @@
 	            float: 'right'
 	          }
 	        }).appendTo(title);
-	        this.dialog = new Dialog;
+	        this.dialog = new Dialog($);
 	        this.dialog.header = title;
 	        this.dialog.content = content;
 	        this.dialog.addButton(Tree.labels.closeButton, function() {
 	          return _this.close();
 	        });
+	        this.dialog.render();
 	        this.maximize();
 	        this.renderOutputs();
 	        return this.initialized = true;
@@ -13571,6 +13876,12 @@
 	    Tree.prototype.renderOutputs = function() {
 	      var count, helper, item, name, result, that, ul, _ref, _ref1,
 	        _this = this;
+	      count = this.getChecked().length;
+	      if (count > 0) {
+	        this.dialog.changeInfo(Tree.labels.selected.replace(/\%s/g, count));
+	      } else {
+	        this.dialog.changeInfo(null);
+	      }
 	      if (this.resultElement !== null) {
 	        this.resultElement.val(JSON.stringify(this.serialize(this.resultElementFull, this.resultElementMinimized)));
 	      }

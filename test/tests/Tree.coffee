@@ -60,6 +60,7 @@ describe 'Tree checkbox list', ->
 			checked = tree.getContent().find('input[type="checkbox"]:checked')
 			expect(checked.length).to.be.equal(1)
 			expect(checked.val()).to.be.equal('linux')
+			expect(tree.dialog.elements.info.html()).to.be.equal('Selected items: 1')
 
 		it 'should change selection of group', ->
 			tree.changeSelection('mobileOs')
@@ -67,14 +68,8 @@ describe 'Tree checkbox list', ->
 			values = []
 			checked.each( -> values.push($(@).val()))
 			expect(checked.length).to.be.equal(6)
-			expect(values).to.be.eql([
-				'mobileOs'
-				'android'
-				'ios'
-				'windowsPhone'
-				'symbian'
-				'blackBerry'
-			])
+			expect(values).to.be.eql(['mobileOs', 'android', 'ios', 'windowsPhone', 'symbian', 'blackBerry'])
+			expect(tree.dialog.elements.info.html()).to.be.equal('Selected items: 6')
 
 	describe '#minimize()', ->
 
