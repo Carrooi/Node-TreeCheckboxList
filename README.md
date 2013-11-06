@@ -135,6 +135,9 @@ $ npm test
 
 ## Changelog
 
+* 1.4.0
+	+ Added counter of selected items
+
 * 1.3.0
 	+ Added tests
 	+ Many optimizations
