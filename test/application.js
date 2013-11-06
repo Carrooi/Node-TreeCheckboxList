@@ -13388,7 +13388,7 @@
 	return {
 		"name": "tree-checkbox-list",
 		"description": "Modal dialog with checkbox tree list",
-		"version": "1.3.0",
+		"version": "1.4.0",
 		"author": {
 			"name": "David Kudera",
 			"email": "sakren@gmail.com"
