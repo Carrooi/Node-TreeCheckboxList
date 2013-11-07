@@ -32,6 +32,6 @@
 		"mocha": "~1.14.0"
 	},
 	"scripts": {
-		"test": "cd ./test; simq build; mocha-phantomjs ./index.html;"
+		"test": "cd ./test; mocha-phantomjs ./index.html;"
 	}
 }
