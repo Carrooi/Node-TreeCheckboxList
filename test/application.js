@@ -384,6 +384,7 @@
 	          'class': this.options.classes.header
 	        });
 	      }
+	      this.elements.header.html('');
 	      if (this.header || this.title) {
 	        if (this.header) {
 	          this.elements.header.html(this.header);
@@ -400,6 +401,7 @@
 	          'class': this.options.classes.content
 	        });
 	      }
+	      this.elements.content.html('');
 	      if (this.content !== null) {
 	        this.elements.content.html(this.content);
 	      }
@@ -413,6 +415,13 @@
 	        this.elements.footer = $('<div>', {
 	          'class': this.options.classes.footer
 	        });
+	      }
+	      this.elements.footer.html('');
+	      if (typeof this.elements.info !== 'undefined') {
+	        delete this.elements.info;
+	      }
+	      if (typeof this.elements.buttons !== 'undefined') {
+	        delete this.elements.buttons;
 	      }
 	      if (this.footer || this.info || this.buttons.length > 0) {
 	        if (this.footer) {
@@ -3171,8 +3180,8 @@
 	      }
 	    };
 	
-	    Tree.prototype.search = function(text) {
-	      var content, found, helper, item, name, pattern,
+	    Tree.prototype.findItemsByTitle = function(text) {
+	      var found, helper, pattern,
 	        _this = this;
 	      pattern = new RegExp(text, 'i');
 	      found = {};
@@ -3184,7 +3193,7 @@
 	          if (item.title.match(pattern) !== null) {
 	            found[name] = item;
 	          }
-	          if (typeof item.items !== 'undefined') {
+	          if (typeof item.items !== 'undefined' && !$.isEmptyObject(item.items)) {
 	            _results.push(helper(item.items));
 	          } else {
 	            _results.push(void 0);
@@ -3193,16 +3202,33 @@
 	        return _results;
 	      };
 	      helper(this.data);
+	      return found;
+	    };
+	
+	    Tree.prototype.getElementsFromItems = function(items) {
+	      var content, item, name, result;
 	      content = this.getContent();
-	      content.find('li:hidden').show();
-	      content.find('li.found').removeClass('found');
-	      for (name in found) {
-	        item = found[name];
-	        content.find('input[type="checkbox"][value="' + name + '"]').parents('li').addClass('found');
+	      result = [];
+	      for (name in items) {
+	        item = items[name];
+	        result.push(content.find('input[type="checkbox"][value="' + name + '"]'));
 	      }
-	      return content.find('li').filter(function() {
-	        return !$(this).hasClass('found');
+	      return $(result);
+	    };
+	
+	    Tree.prototype.search = function(text) {
+	      debugger;
+	      var content, found;
+	      content = this.getContent();
+	      content.find('li.tree-checkbox-list-item:hidden').show();
+	      found = this.findItemsByTitle(text);
+	      this.getElementsFromItems(found).each(function(i, checkbox) {
+	        return $(checkbox).parents('li.tree-checkbox-list-item').addClass('__found');
+	      });
+	      content.find('li.tree-checkbox-list-item').filter(function() {
+	        return !$(this).hasClass('__found');
 	      }).hide();
+	      return content.find('li.tree-checkbox-list-item.__found').removeClass('__found');
 	    };
 	
 	    return Tree;
@@ -8264,7 +8290,7 @@
 	return {
 	  "name": "modal-dialog",
 	  "description": "Window modal dialogs for browser",
-	  "version": "1.6.0",
+	  "version": "1.6.1",
 	  "author": {
 	    "name": "David Kudera",
 	    "email": "sakren@gmail.com"
@@ -8298,13 +8324,13 @@
 	  "scripts": {
 	    "test": "cd ./test; mocha-phantomjs index.html;"
 	  },
-	  "readme": "# Modal dialog\n\nWindow modal dialogs for browser (eg. with [simq](https://npmjs.org/package/simq)).\nDepends on jQuery, instance of EventEmitter, uses [q](https://npmjs.org/package/q) promise library.\n\n## Installation\n\n```\n$ npm install modal-dialog\n```\n\n## Usage\n\n```\nvar Dialog = require('modal-dialog');\n\nvar d = new Dialog(window.jQuery);\nd.title = 'Title of my window';\nd.content = 'Lorem lipsum dolor sit amet...';\nd.info = 'Info in footer';\nd.addButton('OK', function() {\n\talert('OK button was clicked');\n\td.hide();\n});\nd.show();\n```\n\nIf you want to set some element directly into header or footer, you can set these variables. `Title` and `info` variables\nare just shortcuts for setting texts.\n\n```\nd.header = $('<div>my custom header</div>');\nd.footer = $('<div>my custom footer</div>');\n```\n\n## Changing data of created dialog\n\nThere are three methods for changing data. Unfortunately you can not change everything (just title, content and info).\n\n```\nd.changeTitle('new title');\nd.changeContent('new content');\nd.changeInfo('new info');\n```\n\n## Styling\n\nThis modal dialog comes with one simple style which is sincerely horrible, so I recommend to use your own style. You just\nhave to disable the default one.\n\n```\nDialog.styles = false;\n```\n\nNow you can write your own styles in your css files. Modal dialog has got some classes for you. Names of these classes can\nbe also changed in variable `classes`. Here are the default ones.\n\n```\nDialog.classes = {\n\tcontainer: 'modal_dialog',\n\ttitle: 'title',\n\theader: 'header',\n\tcontent: 'content',\n\tfooter: 'footer',\n\tinfo: 'info',\n\tbuttons: 'buttons',\n\tbutton: 'button',\n};\n```\n\n## Options\n\nSettings described above were default settings, but you can set these options for each dialog separately.\n\n```\nd.show({\n\tstyles: false\n});\n```\n\n### List of options\n\n* width\n* maxHeight\n* duration (speed of animation in jquery)\n* zIndex\n* styles (disable or allow default styles)\n* classes (override default classes names)\n* overlay (list of options for [overlay](https://npmjs.org/package/overlay) package)\n\n## Confirmation dialog\n\nThere is prepared also simple confirmation dialog with two buttons (`OK` and `Cancel`).\n\n```\nvar Confirm = require('modal-dialog/ConfirmDialog');\n\nvar c = new Confirm(window.jQuery, 'Are you really want to continue?');\nc.on('true', function() {\n\talert('You clicked on the OK button');\n});\nc.on('false', function() {\n\talert('You clicked on the Cancel button');\n});\n```\n\nHere is how to set own captions for these two buttons.\n\n```\nvar c = new Confirm(window.jQuery, 'Some question', 'Yes', 'No');\n```\n\n## Events\n\n* `beforeShow` (dialog): Called before dialog is opened\n* `afterShow` (dialog): Called after dialog is opened (after all animations)\n* `beforeHide` (dialog): Called before dialog is closed\n* `afterHide` (dialog): Called after dialog is closed (after all animations)\n* `true` (only confirmations): Called when true button is clicked\n* `false` (only confirmations): Called when false button is clicked\n\nExample:\n```\nd.on('afterShow', function(dialog) {\n\td === dialog; //true\n\n\tconsole.log('Window is open');\n});\n```\n\n## Tests\n\n```\n$ npm test\n```\n\n## Changelog\n\n* 1.6.0\n\t+ Optimizations\n\t+ Added changeTitle, changeContent and changeInfo methods\n\t+ Optimized tests\n\n* 1.5.0\n\t+ onTrue and onFalse in confirmations replaced with eventEmitter events\n\t+ overlay did not hide in some situations\n\n* 1.4.0\n\t+ jQuery must be passed in constructor\n\n* 1.3.3 - 1.3.4\n\t+ Some optimizations\n\t+ Updated tests\n\n* 1.3.2\n\t+ Uses [content-ready](https://npmjs.org/package/content-ready) module\n\t+ Added many other tests\n\n* 1.3.1\n\t+ Added tests\n\n* 1.3.0\n\t+ Instance of EventEmitter\n\t+ Added some events\n\n* 1.2.2 - 1.2.4\n\t+ Showing dialog in right position after all images all loaded\n\n* 1.2.1\n\t+ Bug with custom styles\n\n* 1.2.0\n\t+ Added `isOpen` method\n\n* 1.1.1\n\t+ Some bugs\n\n* 1.1.0\n\t+ Added confirm dialog\n\n* 1.0.0\n\t+ Initial version",
+	  "readme": "# Modal dialog\n\nWindow modal dialogs for browser (eg. with [simq](https://npmjs.org/package/simq)).\nDepends on jQuery, instance of EventEmitter, uses [q](https://npmjs.org/package/q) promise library.\n\n## Installation\n\n```\n$ npm install modal-dialog\n```\n\n## Usage\n\n```\nvar Dialog = require('modal-dialog');\n\nvar d = new Dialog(window.jQuery);\nd.title = 'Title of my window';\nd.content = 'Lorem lipsum dolor sit amet...';\nd.info = 'Info in footer';\nd.addButton('OK', function() {\n\talert('OK button was clicked');\n\td.hide();\n});\nd.show();\n```\n\nIf you want to set some element directly into header or footer, you can set these variables. `Title` and `info` variables\nare just shortcuts for setting texts.\n\n```\nd.header = $('<div>my custom header</div>');\nd.footer = $('<div>my custom footer</div>');\n```\n\n## Changing data of created dialog\n\nThere are three methods for changing data. Unfortunately you can not change everything (just title, content and info).\n\n```\nd.changeTitle('new title');\nd.changeContent('new content');\nd.changeInfo('new info');\n```\n\n## Styling\n\nThis modal dialog comes with one simple style which is sincerely horrible, so I recommend to use your own style. You just\nhave to disable the default one.\n\n```\nDialog.styles = false;\n```\n\nNow you can write your own styles in your css files. Modal dialog has got some classes for you. Names of these classes can\nbe also changed in variable `classes`. Here are the default ones.\n\n```\nDialog.classes = {\n\tcontainer: 'modal_dialog',\n\ttitle: 'title',\n\theader: 'header',\n\tcontent: 'content',\n\tfooter: 'footer',\n\tinfo: 'info',\n\tbuttons: 'buttons',\n\tbutton: 'button',\n};\n```\n\n## Options\n\nSettings described above were default settings, but you can set these options for each dialog separately.\n\n```\nd.show({\n\tstyles: false\n});\n```\n\n### List of options\n\n* width\n* maxHeight\n* duration (speed of animation in jquery)\n* zIndex\n* styles (disable or allow default styles)\n* classes (override default classes names)\n* overlay (list of options for [overlay](https://npmjs.org/package/overlay) package)\n\n## Confirmation dialog\n\nThere is prepared also simple confirmation dialog with two buttons (`OK` and `Cancel`).\n\n```\nvar Confirm = require('modal-dialog/ConfirmDialog');\n\nvar c = new Confirm(window.jQuery, 'Are you really want to continue?');\nc.on('true', function() {\n\talert('You clicked on the OK button');\n});\nc.on('false', function() {\n\talert('You clicked on the Cancel button');\n});\n```\n\nHere is how to set own captions for these two buttons.\n\n```\nvar c = new Confirm(window.jQuery, 'Some question', 'Yes', 'No');\n```\n\n## Events\n\n* `beforeShow` (dialog): Called before dialog is opened\n* `afterShow` (dialog): Called after dialog is opened (after all animations)\n* `beforeHide` (dialog): Called before dialog is closed\n* `afterHide` (dialog): Called after dialog is closed (after all animations)\n* `true` (only confirmations): Called when true button is clicked\n* `false` (only confirmations): Called when false button is clicked\n\nExample:\n```\nd.on('afterShow', function(dialog) {\n\td === dialog; //true\n\n\tconsole.log('Window is open');\n});\n```\n\n## Tests\n\n```\n$ npm test\n```\n\n## Changelog\n\n* 1.6.1\n\t+ Bug with changing elements\n\n* 1.6.0\n\t+ Optimizations\n\t+ Added changeTitle, changeContent and changeInfo methods\n\t+ Optimized tests\n\n* 1.5.0\n\t+ onTrue and onFalse in confirmations replaced with eventEmitter events\n\t+ overlay did not hide in some situations\n\n* 1.4.0\n\t+ jQuery must be passed in constructor\n\n* 1.3.3 - 1.3.4\n\t+ Some optimizations\n\t+ Updated tests\n\n* 1.3.2\n\t+ Uses [content-ready](https://npmjs.org/package/content-ready) module\n\t+ Added many other tests\n\n* 1.3.1\n\t+ Added tests\n\n* 1.3.0\n\t+ Instance of EventEmitter\n\t+ Added some events\n\n* 1.2.2 - 1.2.4\n\t+ Showing dialog in right position after all images all loaded\n\n* 1.2.1\n\t+ Bug with custom styles\n\n* 1.2.0\n\t+ Added `isOpen` method\n\n* 1.1.1\n\t+ Some bugs\n\n* 1.1.0\n\t+ Added confirm dialog\n\n* 1.0.0\n\t+ Initial version",
 	  "readmeFilename": "README.md",
 	  "bugs": {
 	    "url": "https://github.com/sakren/node-modal-dialog/issues"
 	  },
-	  "_id": "modal-dialog@1.6.0",
-	  "_from": "modal-dialog@~1.6.0"
+	  "_id": "modal-dialog@1.6.1",
+	  "_from": "modal-dialog@~1.6.1"
 	}
 	
 	}).call(this);
@@ -10862,6 +10888,7 @@
 		          'class': this.options.classes.header
 		        });
 		      }
+		      this.elements.header.html('');
 		      if (this.header || this.title) {
 		        if (this.header) {
 		          this.elements.header.html(this.header);
@@ -10878,6 +10905,7 @@
 		          'class': this.options.classes.content
 		        });
 		      }
+		      this.elements.content.html('');
 		      if (this.content !== null) {
 		        this.elements.content.html(this.content);
 		      }
@@ -10891,6 +10919,13 @@
 		        this.elements.footer = $('<div>', {
 		          'class': this.options.classes.footer
 		        });
+		      }
+		      this.elements.footer.html('');
+		      if (typeof this.elements.info !== 'undefined') {
+		        delete this.elements.info;
+		      }
+		      if (typeof this.elements.buttons !== 'undefined') {
+		        delete this.elements.buttons;
 		      }
 		      if (this.footer || this.info || this.buttons.length > 0) {
 		        if (this.footer) {
@@ -11748,7 +11783,7 @@
 		return {
 			"name": "modal-dialog",
 			"description": "Window modal dialogs for browser",
-			"version": "1.6.0",
+			"version": "1.6.1",
 			"author": {
 				"name": "David Kudera",
 				"email": "sakren@gmail.com"
@@ -11959,6 +11994,7 @@
 		          'class': this.options.classes.header
 		        });
 		      }
+		      this.elements.header.html('');
 		      if (this.header || this.title) {
 		        if (this.header) {
 		          this.elements.header.html(this.header);
@@ -11975,6 +12011,7 @@
 		          'class': this.options.classes.content
 		        });
 		      }
+		      this.elements.content.html('');
 		      if (this.content !== null) {
 		        this.elements.content.html(this.content);
 		      }
@@ -11988,6 +12025,13 @@
 		        this.elements.footer = $('<div>', {
 		          'class': this.options.classes.footer
 		        });
+		      }
+		      this.elements.footer.html('');
+		      if (typeof this.elements.info !== 'undefined') {
+		        delete this.elements.info;
+		      }
+		      if (typeof this.elements.buttons !== 'undefined') {
+		        delete this.elements.buttons;
 		      }
 		      if (this.footer || this.info || this.buttons.length > 0) {
 		        if (this.footer) {
@@ -12986,7 +13030,7 @@
 	        return expect(el.find('li.hidden').length).to.be.equal(0);
 	      });
 	    });
-	    return describe('#setResultElement()', function() {
+	    describe('#setResultElement()', function() {
 	      afterEach(function() {
 	        return $('#testElements input[name="result"]').val('');
 	      });
@@ -13061,6 +13105,51 @@
 	        tree.setResultElement(el);
 	        tree.prepare();
 	        return expect(tree.getContent().find('input[type="checkbox"]:checked').length).to.be.equal(4);
+	      });
+	    });
+	    describe('#findItemsByTitle()', function() {
+	      beforeEach(function() {
+	        return tree.prepare();
+	      });
+	      return it('should return items which containing given text', function() {
+	        var items;
+	        items = tree.findItemsByTitle('os');
+	        return expect(items).to.be.eql({
+	          mac: {
+	            title: 'Mac OS X'
+	          },
+	          ios: {
+	            title: 'iOS'
+	          }
+	        });
+	      });
+	    });
+	    describe('#getElementsFromItems()', function() {
+	      beforeEach(function() {
+	        return tree.prepare();
+	      });
+	      return it('should return checkboxes with given names', function() {
+	        var checkboxes;
+	        checkboxes = tree.getElementsFromItems({
+	          pda: {},
+	          pcOs: {},
+	          android: {}
+	        });
+	        expect(checkboxes.length).to.be.equal(3);
+	        expect(checkboxes.get(0).val()).to.be.equal('pda');
+	        expect(checkboxes.get(1).val()).to.be.equal('pcOs');
+	        return expect(checkboxes.get(2).val()).to.be.equal('android');
+	      });
+	    });
+	    return describe('#search()', function() {
+	      beforeEach(function(done) {
+	        return tree.open().then(function() {
+	          return done();
+	        });
+	      });
+	      return it('should hide not valid items', function() {
+	        tree.search('os');
+	        return expect(tree.getContent().find('input[type="checkbox"]:visible').length).to.be.equal(5);
 	      });
 	    });
 	  });
@@ -13411,7 +13500,7 @@
 		},
 		"main": "./lib/Tree.js",
 		"dependencies": {
-			"modal-dialog": "~1.6.0",
+			"modal-dialog": "~1.6.1",
 			"q": "~0.9.7"
 		},
 		"devDependencies": {
@@ -13975,8 +14064,8 @@
 	      }
 	    };
 	
-	    Tree.prototype.search = function(text) {
-	      var content, found, helper, item, name, pattern,
+	    Tree.prototype.findItemsByTitle = function(text) {
+	      var found, helper, pattern,
 	        _this = this;
 	      pattern = new RegExp(text, 'i');
 	      found = {};
@@ -13988,7 +14077,7 @@
 	          if (item.title.match(pattern) !== null) {
 	            found[name] = item;
 	          }
-	          if (typeof item.items !== 'undefined') {
+	          if (typeof item.items !== 'undefined' && !$.isEmptyObject(item.items)) {
 	            _results.push(helper(item.items));
 	          } else {
 	            _results.push(void 0);
@@ -13997,16 +14086,33 @@
 	        return _results;
 	      };
 	      helper(this.data);
+	      return found;
+	    };
+	
+	    Tree.prototype.getElementsFromItems = function(items) {
+	      var content, item, name, result;
 	      content = this.getContent();
-	      content.find('li:hidden').show();
-	      content.find('li.found').removeClass('found');
-	      for (name in found) {
-	        item = found[name];
-	        content.find('input[type="checkbox"][value="' + name + '"]').parents('li').addClass('found');
+	      result = [];
+	      for (name in items) {
+	        item = items[name];
+	        result.push(content.find('input[type="checkbox"][value="' + name + '"]'));
 	      }
-	      return content.find('li').filter(function() {
-	        return !$(this).hasClass('found');
+	      return $(result);
+	    };
+	
+	    Tree.prototype.search = function(text) {
+	      debugger;
+	      var content, found;
+	      content = this.getContent();
+	      content.find('li.tree-checkbox-list-item:hidden').show();
+	      found = this.findItemsByTitle(text);
+	      this.getElementsFromItems(found).each(function(i, checkbox) {
+	        return $(checkbox).parents('li.tree-checkbox-list-item').addClass('__found');
+	      });
+	      content.find('li.tree-checkbox-list-item').filter(function() {
+	        return !$(this).hasClass('__found');
 	      }).hide();
+	      return content.find('li.tree-checkbox-list-item.__found').removeClass('__found');
 	    };
 	
 	    return Tree;

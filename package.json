@@ -24,7 +24,7 @@
 	},
 	"main": "./lib/Tree.js",
 	"dependencies": {
-		"modal-dialog": "~1.6.0",
+		"modal-dialog": "~1.6.1",
 		"q": "~0.9.7"
 	},
 	"devDependencies": {

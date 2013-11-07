@@ -443,7 +443,7 @@ class Tree
 				@summaryElement.val(result.join(', '))
 
 
-	search: (text) ->
+	findItemsByTitle: (text) ->
 		pattern = new RegExp(text, 'i')
 		found = {}
 
@@ -452,21 +452,40 @@ class Tree
 				if item.title.match(pattern) != null
 					found[name] = item
 
-				if typeof item.items != 'undefined'
+				if typeof item.items != 'undefined' && !$.isEmptyObject(item.items)
 					helper(item.items)
 		helper(@data)
 
+		return found
+
+
+	getElementsFromItems: (items) ->
+		content = @getContent()
+		result = []
+
+		for name, item of items
+			result.push(content.find('input[type="checkbox"][value="' + name + '"]'))
+
+		return $(result)
+
+
+	search: (text) ->
+		debugger
 		content = @getContent()
 
-		content.find('li:hidden').show()
-		content.find('li.found').removeClass('found')
+		content.find('li.tree-checkbox-list-item:hidden').show()
 
-		for name, item of found
-			content.find('input[type="checkbox"][value="' + name + '"]').parents('li').addClass('found')
+		found = @findItemsByTitle(text)
+		@getElementsFromItems(found).each( (i, checkbox) ->
+			$(checkbox).parents('li.tree-checkbox-list-item').addClass('__found')
+		)
 
-		content.find('li').filter( ->
-			return !$(@).hasClass('found')
+		content.find('li.tree-checkbox-list-item').filter( ->
+			return !$(@).hasClass('__found')
 		).hide()
+
+		content.find('li.tree-checkbox-list-item.__found').removeClass('__found')
+
 
 
 module.exports = Tree

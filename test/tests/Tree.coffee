@@ -343,3 +343,43 @@ describe 'Tree checkbox list', ->
 			tree.setResultElement(el)
 			tree.prepare()
 			expect(tree.getContent().find('input[type="checkbox"]:checked').length).to.be.equal(4)
+
+	describe '#findItemsByTitle()', ->
+
+		beforeEach( ->
+			tree.prepare()
+		)
+
+		it 'should return items which containing given text', ->
+			items = tree.findItemsByTitle('os')
+			expect(items).to.be.eql(
+				mac: {title: 'Mac OS X'}
+				ios: {title: 'iOS'}
+			)
+
+	describe '#getElementsFromItems()', ->
+
+		beforeEach( ->
+			tree.prepare()
+		)
+
+		it 'should return checkboxes with given names', ->
+			checkboxes = tree.getElementsFromItems(
+				pda: {}
+				pcOs: {}
+				android: {}
+			)
+			expect(checkboxes.length).to.be.equal(3)
+			expect(checkboxes.get(0).val()).to.be.equal('pda')
+			expect(checkboxes.get(1).val()).to.be.equal('pcOs')
+			expect(checkboxes.get(2).val()).to.be.equal('android')
+
+	describe '#search()', ->
+
+		beforeEach( (done) ->
+			tree.open().then( -> done())
+		)
+
+		it 'should hide not valid items', ->
+			tree.search('os')
+			expect(tree.getContent().find('input[type="checkbox"]:visible').length).to.be.equal(5)
