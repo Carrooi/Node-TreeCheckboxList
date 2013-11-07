@@ -16,6 +16,7 @@ class Tree
 		summaryShow: 'Show all'
 		summaryHide: 'Hide'
 		selected: 'Selected items: %s'
+		searchMoreItems: 'and %s other'
 
 	num: 0
 
@@ -123,7 +124,7 @@ class Tree
 
 		$('<label>',
 			'for': id
-			html: item.title
+			html: item.title + ' '
 		).appendTo(line)
 
 		if typeof item.items != 'undefined'
@@ -156,6 +157,14 @@ class Tree
 
 	getChildren: (checkbox, appendSelector = '') ->
 		return checkbox.parent().children('ul').find('li input[type="checkbox"]' + appendSelector)
+
+
+	isParent: (checkbox) ->
+		return @getChildren(checkbox).length > 0
+
+
+	getParent: (checkbox) ->
+		return $(checkbox.closest('li.tree-checkbox-list-item'))
 
 
 	getParents: (checkbox, reversed = false) ->
@@ -363,6 +372,8 @@ class Tree
 		if @resultElement != null
 			@resultElement.val(JSON.stringify(@serialize(@resultElementFull, @resultElementMinimized)))
 
+		@renderSearchingHelpers()
+
 		if @summaryElement != null
 			if @summaryElement.get(0).nodeName.toLowerCase() == 'div'
 				ul = $('<ul>')
@@ -470,9 +481,9 @@ class Tree
 
 
 	search: (text) ->
-		debugger
 		content = @getContent()
 
+		content.find('li.tree-checkbox-list-item.__found').removeClass('__found')
 		content.find('li.tree-checkbox-list-item:hidden').show()
 
 		found = @findItemsByTitle(text)
@@ -484,8 +495,31 @@ class Tree
 			return !$(@).hasClass('__found')
 		).hide()
 
-		content.find('li.tree-checkbox-list-item.__found').removeClass('__found')
+		@renderSearchingHelpers()
 
+
+	renderSearchingHelpers: ->
+		that = @
+		@minimize()
+		items = @getContent().find('li.tree-checkbox-list-item.__found').filter( ->
+			checkbox = $(@).children('input[type="checkbox"]')
+			return checkbox.is(':checked') && that.isParent(checkbox) && that.getChildren(checkbox, ':not(:visible)').length > 0
+		)
+		@maximize()
+
+		@getContent().find('li.more-info,small.more-info').remove()
+		items.each( (i, li) =>
+			checkbox = $(li).children('input[type="checkbox"]')
+			count = @getChildren(checkbox, ':checked').length
+
+			visibleChildren = @getChildren(checkbox, ':checked:visible')
+			message = Tree.labels.searchMoreItems.replace(/%s/g, count)
+			if visibleChildren.length > 0
+				$('<li class="more-info" style="list-style: none;"><small><i>' + message + '</i></small></li>').appendTo(checkbox.parent().children('ul'))
+			else
+				label = checkbox.parent().children('label')
+				$('<small class="more-info"><i>' + message + '</i></small>').insertAfter(label)
+		)
 
 
 module.exports = Tree

@@ -2662,7 +2662,8 @@
 	      summaryRemove: 'Remove',
 	      summaryShow: 'Show all',
 	      summaryHide: 'Hide',
-	      selected: 'Selected items: %s'
+	      selected: 'Selected items: %s',
+	      searchMoreItems: 'and %s other'
 	    };
 	
 	    Tree.prototype.num = 0;
@@ -2789,7 +2790,7 @@
 	      }).appendTo(line);
 	      $('<label>', {
 	        'for': id,
-	        html: item.title
+	        html: item.title + ' '
 	      }).appendTo(line);
 	      if (typeof item.items !== 'undefined') {
 	        ul = $('<ul>', {
@@ -2828,6 +2829,14 @@
 	        appendSelector = '';
 	      }
 	      return checkbox.parent().children('ul').find('li input[type="checkbox"]' + appendSelector);
+	    };
+	
+	    Tree.prototype.isParent = function(checkbox) {
+	      return this.getChildren(checkbox).length > 0;
+	    };
+	
+	    Tree.prototype.getParent = function(checkbox) {
+	      return $(checkbox.closest('li.tree-checkbox-list-item'));
 	    };
 	
 	    Tree.prototype.getParents = function(checkbox, reversed) {
@@ -3090,6 +3099,7 @@
 	      if (this.resultElement !== null) {
 	        this.resultElement.val(JSON.stringify(this.serialize(this.resultElementFull, this.resultElementMinimized)));
 	      }
+	      this.renderSearchingHelpers();
 	      if (this.summaryElement !== null) {
 	        if (this.summaryElement.get(0).nodeName.toLowerCase() === 'div') {
 	          ul = $('<ul>');
@@ -3217,9 +3227,9 @@
 	    };
 	
 	    Tree.prototype.search = function(text) {
-	      debugger;
 	      var content, found;
 	      content = this.getContent();
+	      content.find('li.tree-checkbox-list-item.__found').removeClass('__found');
 	      content.find('li.tree-checkbox-list-item:hidden').show();
 	      found = this.findItemsByTitle(text);
 	      this.getElementsFromItems(found).each(function(i, checkbox) {
@@ -3228,7 +3238,34 @@
 	      content.find('li.tree-checkbox-list-item').filter(function() {
 	        return !$(this).hasClass('__found');
 	      }).hide();
-	      return content.find('li.tree-checkbox-list-item.__found').removeClass('__found');
+	      return this.renderSearchingHelpers();
+	    };
+	
+	    Tree.prototype.renderSearchingHelpers = function() {
+	      var items, that,
+	        _this = this;
+	      that = this;
+	      this.minimize();
+	      items = this.getContent().find('li.tree-checkbox-list-item.__found').filter(function() {
+	        var checkbox;
+	        checkbox = $(this).children('input[type="checkbox"]');
+	        return checkbox.is(':checked') && that.isParent(checkbox) && that.getChildren(checkbox, ':not(:visible)').length > 0;
+	      });
+	      this.maximize();
+	      this.getContent().find('li.more-info,small.more-info').remove();
+	      return items.each(function(i, li) {
+	        var checkbox, count, label, message, visibleChildren;
+	        checkbox = $(li).children('input[type="checkbox"]');
+	        count = _this.getChildren(checkbox, ':checked').length;
+	        visibleChildren = _this.getChildren(checkbox, ':checked:visible');
+	        message = Tree.labels.searchMoreItems.replace(/%s/g, count);
+	        if (visibleChildren.length > 0) {
+	          return $('<li class="more-info" style="list-style: none;"><small><i>' + message + '</i></small></li>').appendTo(checkbox.parent().children('ul'));
+	        } else {
+	          label = checkbox.parent().children('label');
+	          return $('<small class="more-info"><i>' + message + '</i></small>').insertAfter(label);
+	        }
+	      });
 	    };
 	
 	    return Tree;
@@ -13147,9 +13184,23 @@
 	          return done();
 	        });
 	      });
-	      return it('should hide not valid items', function() {
+	      it('should hide not valid items', function() {
 	        tree.search('os');
 	        return expect(tree.getContent().find('input[type="checkbox"]:visible').length).to.be.equal(5);
+	      });
+	      it('should select some finded group', function() {
+	        var checkbox;
+	        tree.search('os');
+	        tree.changeSelection('mobileOs');
+	        checkbox = tree.getContent().find('input[type="checkbox"][value="mobileOs"]:visible');
+	        return expect(checkbox.parent().find('ul li:last').html()).to.be.equal('<small><i>and 5 other</i></small>');
+	      });
+	      return it('should select some finded group', function() {
+	        var checkbox;
+	        tree.search('mobile');
+	        tree.changeSelection('mobileOs');
+	        checkbox = tree.getContent().find('input[type="checkbox"][value="mobileOs"]:visible');
+	        return expect(checkbox.parent().children('small.more-info').html()).to.be.equal('<i>and 5 other</i>');
 	      });
 	    });
 	  });

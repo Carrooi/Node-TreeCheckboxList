@@ -383,3 +383,15 @@ describe 'Tree checkbox list', ->
 		it 'should hide not valid items', ->
 			tree.search('os')
 			expect(tree.getContent().find('input[type="checkbox"]:visible').length).to.be.equal(5)
+
+		it 'should select some finded group', ->
+			tree.search('os')
+			tree.changeSelection('mobileOs')
+			checkbox = tree.getContent().find('input[type="checkbox"][value="mobileOs"]:visible')
+			expect(checkbox.parent().find('ul li:last').html()).to.be.equal('<small><i>and 5 other</i></small>')
+
+		it 'should select some finded group', ->
+			tree.search('mobile')
+			tree.changeSelection('mobileOs')
+			checkbox = tree.getContent().find('input[type="checkbox"][value="mobileOs"]:visible')
+			expect(checkbox.parent().children('small.more-info').html()).to.be.equal('<i>and 5 other</i>')

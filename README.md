@@ -138,6 +138,7 @@ $ npm test
 * 1.4.0
 	+ Added counter of selected items
 	+ Some refactoring
+	+ Added info with info about other selected items which are not visible (in searching)
 
 * 1.3.0
 	+ Added tests
