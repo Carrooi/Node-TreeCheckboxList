@@ -135,7 +135,7 @@ $ npm test
 
 ## Changelog
 
-* 1.4.0
+* 1.4.0 - 1.4.1
 	+ Added counter of selected items
 	+ Some refactoring
 	+ Added info with info about other selected items which are not visible (in searching)
