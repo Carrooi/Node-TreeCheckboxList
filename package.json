@@ -1,7 +1,7 @@
 {
 	"name": "tree-checkbox-list",
 	"description": "Modal dialog with checkbox tree list",
-	"version": "1.4.1",
+	"version": "1.4.2",
 	"author": {
 		"name": "David Kudera",
 		"email": "sakren@gmail.com"
@@ -24,7 +24,7 @@
 	},
 	"main": "./lib/Tree.js",
 	"dependencies": {
-		"modal-dialog": "~1.6.1",
+		"modal-dialog": "~1.6.2",
 		"q": "~0.9.7"
 	},
 	"devDependencies": {

@@ -135,6 +135,10 @@ $ npm test
 
 ## Changelog
 
+* 1.4.2
+	+ Little optimization
+	+ Updated modules
+
 * 1.4.0 - 1.4.1
 	+ Added counter of selected items
 	+ Some refactoring

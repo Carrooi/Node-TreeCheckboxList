@@ -28,7 +28,7 @@
           parent: null,
           children: null
         };
-        modules[fullName].apply(modules[fullName], [m.exports, m]);
+        modules[fullName].apply(window, [m.exports, m]);
         m.loaded = true;
         cache[fullName] = m;
       }
@@ -495,7 +495,7 @@
 	          });
 	          if (!this.footer && this.buttons.length > 0) {
 	            return this.elements.buttons.css({
-	              float: 'right'
+	              'float': 'right'
 	            });
 	          }
 	        }
@@ -2751,7 +2751,7 @@
 	            }
 	          },
 	          css: {
-	            float: 'right'
+	            'float': 'right'
 	          }
 	        }).appendTo(title);
 	        this.dialog = new Dialog($);
@@ -3342,6 +3342,7 @@
 	  "bugs": {
 	    "url": "https://github.com/sakren/node-content-ready/issues"
 	  },
+	  "homepage": "https://github.com/sakren/node-content-ready",
 	  "_id": "content-ready@1.0.0",
 	  "_from": "content-ready@~1.0.0"
 	}
@@ -5815,6 +5816,7 @@
 	  "bugs": {
 	    "url": "https://github.com/sakren/node-overlay/issues"
 	  },
+	  "homepage": "https://github.com/sakren/node-overlay",
 	  "_id": "overlay@1.2.4",
 	  "_from": "overlay@~1.2.4"
 	}
@@ -8327,7 +8329,7 @@
 	return {
 	  "name": "modal-dialog",
 	  "description": "Window modal dialogs for browser",
-	  "version": "1.6.1",
+	  "version": "1.6.2",
 	  "author": {
 	    "name": "David Kudera",
 	    "email": "sakren@gmail.com"
@@ -8361,13 +8363,14 @@
 	  "scripts": {
 	    "test": "cd ./test; mocha-phantomjs index.html;"
 	  },
-	  "readme": "# Modal dialog\n\nWindow modal dialogs for browser (eg. with [simq](https://npmjs.org/package/simq)).\nDepends on jQuery, instance of EventEmitter, uses [q](https://npmjs.org/package/q) promise library.\n\n## Installation\n\n```\n$ npm install modal-dialog\n```\n\n## Usage\n\n```\nvar Dialog = require('modal-dialog');\n\nvar d = new Dialog(window.jQuery);\nd.title = 'Title of my window';\nd.content = 'Lorem lipsum dolor sit amet...';\nd.info = 'Info in footer';\nd.addButton('OK', function() {\n\talert('OK button was clicked');\n\td.hide();\n});\nd.show();\n```\n\nIf you want to set some element directly into header or footer, you can set these variables. `Title` and `info` variables\nare just shortcuts for setting texts.\n\n```\nd.header = $('<div>my custom header</div>');\nd.footer = $('<div>my custom footer</div>');\n```\n\n## Changing data of created dialog\n\nThere are three methods for changing data. Unfortunately you can not change everything (just title, content and info).\n\n```\nd.changeTitle('new title');\nd.changeContent('new content');\nd.changeInfo('new info');\n```\n\n## Styling\n\nThis modal dialog comes with one simple style which is sincerely horrible, so I recommend to use your own style. You just\nhave to disable the default one.\n\n```\nDialog.styles = false;\n```\n\nNow you can write your own styles in your css files. Modal dialog has got some classes for you. Names of these classes can\nbe also changed in variable `classes`. Here are the default ones.\n\n```\nDialog.classes = {\n\tcontainer: 'modal_dialog',\n\ttitle: 'title',\n\theader: 'header',\n\tcontent: 'content',\n\tfooter: 'footer',\n\tinfo: 'info',\n\tbuttons: 'buttons',\n\tbutton: 'button',\n};\n```\n\n## Options\n\nSettings described above were default settings, but you can set these options for each dialog separately.\n\n```\nd.show({\n\tstyles: false\n});\n```\n\n### List of options\n\n* width\n* maxHeight\n* duration (speed of animation in jquery)\n* zIndex\n* styles (disable or allow default styles)\n* classes (override default classes names)\n* overlay (list of options for [overlay](https://npmjs.org/package/overlay) package)\n\n## Confirmation dialog\n\nThere is prepared also simple confirmation dialog with two buttons (`OK` and `Cancel`).\n\n```\nvar Confirm = require('modal-dialog/ConfirmDialog');\n\nvar c = new Confirm(window.jQuery, 'Are you really want to continue?');\nc.on('true', function() {\n\talert('You clicked on the OK button');\n});\nc.on('false', function() {\n\talert('You clicked on the Cancel button');\n});\n```\n\nHere is how to set own captions for these two buttons.\n\n```\nvar c = new Confirm(window.jQuery, 'Some question', 'Yes', 'No');\n```\n\n## Events\n\n* `beforeShow` (dialog): Called before dialog is opened\n* `afterShow` (dialog): Called after dialog is opened (after all animations)\n* `beforeHide` (dialog): Called before dialog is closed\n* `afterHide` (dialog): Called after dialog is closed (after all animations)\n* `true` (only confirmations): Called when true button is clicked\n* `false` (only confirmations): Called when false button is clicked\n\nExample:\n```\nd.on('afterShow', function(dialog) {\n\td === dialog; //true\n\n\tconsole.log('Window is open');\n});\n```\n\n## Tests\n\n```\n$ npm test\n```\n\n## Changelog\n\n* 1.6.1\n\t+ Bug with changing elements\n\n* 1.6.0\n\t+ Optimizations\n\t+ Added changeTitle, changeContent and changeInfo methods\n\t+ Optimized tests\n\n* 1.5.0\n\t+ onTrue and onFalse in confirmations replaced with eventEmitter events\n\t+ overlay did not hide in some situations\n\n* 1.4.0\n\t+ jQuery must be passed in constructor\n\n* 1.3.3 - 1.3.4\n\t+ Some optimizations\n\t+ Updated tests\n\n* 1.3.2\n\t+ Uses [content-ready](https://npmjs.org/package/content-ready) module\n\t+ Added many other tests\n\n* 1.3.1\n\t+ Added tests\n\n* 1.3.0\n\t+ Instance of EventEmitter\n\t+ Added some events\n\n* 1.2.2 - 1.2.4\n\t+ Showing dialog in right position after all images all loaded\n\n* 1.2.1\n\t+ Bug with custom styles\n\n* 1.2.0\n\t+ Added `isOpen` method\n\n* 1.1.1\n\t+ Some bugs\n\n* 1.1.0\n\t+ Added confirm dialog\n\n* 1.0.0\n\t+ Initial version",
+	  "readme": "# Modal dialog\n\nWindow modal dialogs for browser (eg. with [simq](https://npmjs.org/package/simq)).\nDepends on jQuery, instance of EventEmitter, uses [q](https://npmjs.org/package/q) promise library.\n\n## Installation\n\n```\n$ npm install modal-dialog\n```\n\n## Usage\n\n```\nvar Dialog = require('modal-dialog');\n\nvar d = new Dialog(window.jQuery);\nd.title = 'Title of my window';\nd.content = 'Lorem lipsum dolor sit amet...';\nd.info = 'Info in footer';\nd.addButton('OK', function() {\n\talert('OK button was clicked');\n\td.hide();\n});\nd.show();\n```\n\nIf you want to set some element directly into header or footer, you can set these variables. `Title` and `info` variables\nare just shortcuts for setting texts.\n\n```\nd.header = $('<div>my custom header</div>');\nd.footer = $('<div>my custom footer</div>');\n```\n\n## Changing data of created dialog\n\nThere are three methods for changing data. Unfortunately you can not change everything (just title, content and info).\n\n```\nd.changeTitle('new title');\nd.changeContent('new content');\nd.changeInfo('new info');\n```\n\n## Styling\n\nThis modal dialog comes with one simple style which is sincerely horrible, so I recommend to use your own style. You just\nhave to disable the default one.\n\n```\nDialog.styles = false;\n```\n\nNow you can write your own styles in your css files. Modal dialog has got some classes for you. Names of these classes can\nbe also changed in variable `classes`. Here are the default ones.\n\n```\nDialog.classes = {\n\tcontainer: 'modal_dialog',\n\ttitle: 'title',\n\theader: 'header',\n\tcontent: 'content',\n\tfooter: 'footer',\n\tinfo: 'info',\n\tbuttons: 'buttons',\n\tbutton: 'button',\n};\n```\n\n## Options\n\nSettings described above were default settings, but you can set these options for each dialog separately.\n\n```\nd.show({\n\tstyles: false\n});\n```\n\n### List of options\n\n* width\n* maxHeight\n* duration (speed of animation in jquery)\n* zIndex\n* styles (disable or allow default styles)\n* classes (override default classes names)\n* overlay (list of options for [overlay](https://npmjs.org/package/overlay) package)\n\n## Confirmation dialog\n\nThere is prepared also simple confirmation dialog with two buttons (`OK` and `Cancel`).\n\n```\nvar Confirm = require('modal-dialog/ConfirmDialog');\n\nvar c = new Confirm(window.jQuery, 'Are you really want to continue?');\nc.on('true', function() {\n\talert('You clicked on the OK button');\n});\nc.on('false', function() {\n\talert('You clicked on the Cancel button');\n});\n```\n\nHere is how to set own captions for these two buttons.\n\n```\nvar c = new Confirm(window.jQuery, 'Some question', 'Yes', 'No');\n```\n\n## Events\n\n* `beforeShow` (dialog): Called before dialog is opened\n* `afterShow` (dialog): Called after dialog is opened (after all animations)\n* `beforeHide` (dialog): Called before dialog is closed\n* `afterHide` (dialog): Called after dialog is closed (after all animations)\n* `true` (only confirmations): Called when true button is clicked\n* `false` (only confirmations): Called when false button is clicked\n\nExample:\n```\nd.on('afterShow', function(dialog) {\n\td === dialog; //true\n\n\tconsole.log('Window is open');\n});\n```\n\n## Tests\n\n```\n$ npm test\n```\n\n## Changelog\n\n* 1.6.2\n\t+ Little optimization\n\n* 1.6.1\n\t+ Bug with changing elements\n\n* 1.6.0\n\t+ Optimizations\n\t+ Added changeTitle, changeContent and changeInfo methods\n\t+ Optimized tests\n\n* 1.5.0\n\t+ onTrue and onFalse in confirmations replaced with eventEmitter events\n\t+ overlay did not hide in some situations\n\n* 1.4.0\n\t+ jQuery must be passed in constructor\n\n* 1.3.3 - 1.3.4\n\t+ Some optimizations\n\t+ Updated tests\n\n* 1.3.2\n\t+ Uses [content-ready](https://npmjs.org/package/content-ready) module\n\t+ Added many other tests\n\n* 1.3.1\n\t+ Added tests\n\n* 1.3.0\n\t+ Instance of EventEmitter\n\t+ Added some events\n\n* 1.2.2 - 1.2.4\n\t+ Showing dialog in right position after all images all loaded\n\n* 1.2.1\n\t+ Bug with custom styles\n\n* 1.2.0\n\t+ Added `isOpen` method\n\n* 1.1.1\n\t+ Some bugs\n\n* 1.1.0\n\t+ Added confirm dialog\n\n* 1.0.0\n\t+ Initial version",
 	  "readmeFilename": "README.md",
 	  "bugs": {
 	    "url": "https://github.com/sakren/node-modal-dialog/issues"
 	  },
-	  "_id": "modal-dialog@1.6.1",
-	  "_from": "modal-dialog@~1.6.1"
+	  "homepage": "https://github.com/sakren/node-modal-dialog",
+	  "_id": "modal-dialog@1.6.2",
+	  "_from": "modal-dialog@~1.6.2"
 	}
 	
 	}).call(this);
@@ -8415,7 +8418,7 @@
 	          parent: null,
 	          children: null
 	        };
-	        modules[fullName].apply(modules[fullName], [m.exports, m]);
+	        modules[fullName].apply(window, [m.exports, m]);
 	        m.loaded = true;
 	        cache[fullName] = m;
 	      }
@@ -11036,7 +11039,7 @@
 		          });
 		          if (!this.footer && this.buttons.length > 0) {
 		            return this.elements.buttons.css({
-		              float: 'right'
+		              'float': 'right'
 		            });
 		          }
 		        }
@@ -12142,7 +12145,7 @@
 		          });
 		          if (!this.footer && this.buttons.length > 0) {
 		            return this.elements.buttons.css({
-		              float: 'right'
+		              'float': 'right'
 		            });
 		          }
 		        }
@@ -12537,8 +12540,8 @@
 	, 'content-ready': function(exports, module) { module.exports = window.require('content-ready/lib/Ready.js'); }
 	
 	});
-	require.version = '5.1.1';
-	delete require.__setStats;
+	require.__setStats({"q/q.js":{"atime":1385458624000,"mtime":1378314231000,"ctime":1383727273000},"overlay/lib/Overlay.js":{"atime":1385458624000,"mtime":1379361057000,"ctime":1383727273000},"content-ready/lib/Ready.js":{"atime":1385458624000,"mtime":1379354855000,"ctime":1383727273000},"/src/ConfirmDialog.coffee":{"atime":1385458625000,"mtime":1383727263000,"ctime":1383727263000},"/src/Dialog.coffee":{"atime":1385458708000,"mtime":1385458701000,"ctime":1385458701000},"events":{"atime":1385458624000,"mtime":1384294487000,"ctime":1384764305000},"/test/tests/ConfirmDialog.coffee":{"atime":1385458625000,"mtime":1383733644000,"ctime":1383733644000},"/test/tests/Dialog.coffee":{"atime":1385458625000,"mtime":1383733254000,"ctime":1383733254000},"/package.json":{"atime":1385458624000,"mtime":1385458603000,"ctime":1385458603000},"/lib/Dialog.js":{"atime":1385458712000,"mtime":1385458708000,"ctime":1385458708000},"q/package.json":{"atime":1385458624000,"mtime":1383727273000,"ctime":1383727273000},"overlay/package.json":{"atime":1385458624000,"mtime":1383727273000,"ctime":1383727273000},"content-ready/package.json":{"atime":1385458624000,"mtime":1383727273000,"ctime":1383727273000}});
+	require.version = '5.1.3';
 	
 	/** run section **/
 	
@@ -13528,7 +13531,7 @@
 	return {
 		"name": "tree-checkbox-list",
 		"description": "Modal dialog with checkbox tree list",
-		"version": "1.4.0",
+		"version": "1.4.2",
 		"author": {
 			"name": "David Kudera",
 			"email": "sakren@gmail.com"
@@ -13551,7 +13554,7 @@
 		},
 		"main": "./lib/Tree.js",
 		"dependencies": {
-			"modal-dialog": "~1.6.1",
+			"modal-dialog": "~1.6.2",
 			"q": "~0.9.7"
 		},
 		"devDependencies": {
@@ -13597,7 +13600,8 @@
 	      summaryRemove: 'Remove',
 	      summaryShow: 'Show all',
 	      summaryHide: 'Hide',
-	      selected: 'Selected items: %s'
+	      selected: 'Selected items: %s',
+	      searchMoreItems: 'and %s other'
 	    };
 	
 	    Tree.prototype.num = 0;
@@ -13685,7 +13689,7 @@
 	            }
 	          },
 	          css: {
-	            float: 'right'
+	            'float': 'right'
 	          }
 	        }).appendTo(title);
 	        this.dialog = new Dialog($);
@@ -13724,7 +13728,7 @@
 	      }).appendTo(line);
 	      $('<label>', {
 	        'for': id,
-	        html: item.title
+	        html: item.title + ' '
 	      }).appendTo(line);
 	      if (typeof item.items !== 'undefined') {
 	        ul = $('<ul>', {
@@ -13763,6 +13767,14 @@
 	        appendSelector = '';
 	      }
 	      return checkbox.parent().children('ul').find('li input[type="checkbox"]' + appendSelector);
+	    };
+	
+	    Tree.prototype.isParent = function(checkbox) {
+	      return this.getChildren(checkbox).length > 0;
+	    };
+	
+	    Tree.prototype.getParent = function(checkbox) {
+	      return $(checkbox.closest('li.tree-checkbox-list-item'));
 	    };
 	
 	    Tree.prototype.getParents = function(checkbox, reversed) {
@@ -14025,6 +14037,7 @@
 	      if (this.resultElement !== null) {
 	        this.resultElement.val(JSON.stringify(this.serialize(this.resultElementFull, this.resultElementMinimized)));
 	      }
+	      this.renderSearchingHelpers();
 	      if (this.summaryElement !== null) {
 	        if (this.summaryElement.get(0).nodeName.toLowerCase() === 'div') {
 	          ul = $('<ul>');
@@ -14152,9 +14165,9 @@
 	    };
 	
 	    Tree.prototype.search = function(text) {
-	      debugger;
 	      var content, found;
 	      content = this.getContent();
+	      content.find('li.tree-checkbox-list-item.__found').removeClass('__found');
 	      content.find('li.tree-checkbox-list-item:hidden').show();
 	      found = this.findItemsByTitle(text);
 	      this.getElementsFromItems(found).each(function(i, checkbox) {
@@ -14163,7 +14176,34 @@
 	      content.find('li.tree-checkbox-list-item').filter(function() {
 	        return !$(this).hasClass('__found');
 	      }).hide();
-	      return content.find('li.tree-checkbox-list-item.__found').removeClass('__found');
+	      return this.renderSearchingHelpers();
+	    };
+	
+	    Tree.prototype.renderSearchingHelpers = function() {
+	      var items, that,
+	        _this = this;
+	      that = this;
+	      this.minimize();
+	      items = this.getContent().find('li.tree-checkbox-list-item.__found').filter(function() {
+	        var checkbox;
+	        checkbox = $(this).children('input[type="checkbox"]');
+	        return checkbox.is(':checked') && that.isParent(checkbox) && that.getChildren(checkbox, ':not(:visible)').length > 0;
+	      });
+	      this.maximize();
+	      this.getContent().find('li.more-info,small.more-info').remove();
+	      return items.each(function(i, li) {
+	        var checkbox, count, label, message, visibleChildren;
+	        checkbox = $(li).children('input[type="checkbox"]');
+	        count = _this.getChildren(checkbox, ':checked').length;
+	        visibleChildren = _this.getChildren(checkbox, ':checked:visible');
+	        message = Tree.labels.searchMoreItems.replace(/%s/g, count);
+	        if (visibleChildren.length > 0) {
+	          return $('<li class="more-info" style="list-style: none;"><small><i>' + message + '</i></small></li>').appendTo(checkbox.parent().children('ul'));
+	        } else {
+	          label = checkbox.parent().children('label');
+	          return $('<small class="more-info"><i>' + message + '</i></small>').insertAfter(label);
+	        }
+	      });
 	    };
 	
 	    return Tree;
@@ -14182,8 +14222,8 @@
 , 'content-ready': function(exports, module) { module.exports = window.require('content-ready/lib/Ready.js'); }
 
 });
-require.version = '5.1.1';
-delete require.__setStats;
+require.__setStats({"modal-dialog/lib/ConfirmDialog.js":{"atime":1385459415000,"mtime":1385458708000,"ctime":1385459409000},"modal-dialog/lib/Dialog.js":{"atime":1385459415000,"mtime":1385458708000,"ctime":1385459409000},"q/q.js":{"atime":1385459415000,"mtime":1370996200000,"ctime":1385459412000},"overlay/lib/Overlay.js":{"atime":1385459415000,"mtime":1379361057000,"ctime":1385459410000},"content-ready/lib/Ready.js":{"atime":1385459415000,"mtime":1379354855000,"ctime":1385459410000},"/src/Tree.coffee":{"atime":1385459248000,"mtime":1385459248000,"ctime":1385459248000},"modal-dialog/ConfirmDialog.js":{"atime":1385459415000,"mtime":1383727263000,"ctime":1385459409000},"content-ready/package.json":{"atime":1385459416000,"mtime":1385459410000,"ctime":1385459410000},"content-ready/tests/Ready.js":{"atime":1385459415000,"mtime":1379355424000,"ctime":1385459410000},"content-ready/tests/config/setup.json":{"atime":1385459416000,"mtime":1379355017000,"ctime":1385459410000},"content-ready/tests/jquery.js":{"atime":1385459415000,"mtime":1379338504000,"ctime":1385459410000},"content-ready/tests/modules.js":{"atime":1385459415000,"mtime":1379355018000,"ctime":1385459410000},"q/package.json":{"atime":1385459211000,"mtime":1383735043000,"ctime":1383735043000},"q/queue.js":{"atime":1385459415000,"mtime":1360043643000,"ctime":1385459412000},"overlay/package.json":{"atime":1385459416000,"mtime":1385459410000,"ctime":1385459410000},"overlay/tests/Overlay.js":{"atime":1385459415000,"mtime":1379342412000,"ctime":1385459410000},"overlay/tests/config/setup.json":{"atime":1385459416000,"mtime":1379346843000,"ctime":1385459410000},"overlay/tests/jquery.js":{"atime":1385459415000,"mtime":1379338504000,"ctime":1385459410000},"overlay/tests/modules.js":{"atime":1385459415000,"mtime":1379346843000,"ctime":1385459410000},"modal-dialog/package.json":{"atime":1385459415000,"mtime":1385459409000,"ctime":1385459409000},"modal-dialog/test/application.js":{"atime":1385459415000,"mtime":1385458713000,"ctime":1385459409000},"modal-dialog/test/config/setup.json":{"atime":1385459416000,"mtime":1383727263000,"ctime":1385459409000},"modal-dialog/test/jquery.js":{"atime":1385459415000,"mtime":1383727263000,"ctime":1385459409000},"/test/data.json":{"atime":1385459212000,"mtime":1383639535000,"ctime":1383639535000},"/test/tests/Tree.coffee":{"atime":1385459212000,"mtime":1383831925000,"ctime":1383831925000},"events":{"atime":1385458624000,"mtime":1384294487000,"ctime":1384764305000},"/package.json":{"atime":1385459406000,"mtime":1385459399000,"ctime":1385459399000},"/lib/Tree.js":{"atime":1385459255000,"mtime":1385459248000,"ctime":1385459248000}});
+require.version = '5.1.3';
 
 /** run section **/
 

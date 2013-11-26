@@ -90,7 +90,7 @@ class Tree
 						input.attr('data-previous', value)
 						@search(value)
 				css:
-					float: 'right'
+					'float': 'right'
 			).appendTo(title)
 
 			@dialog = new Dialog($)
