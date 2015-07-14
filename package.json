@@ -4,7 +4,7 @@
 	"version": "1.4.2",
 	"author": {
 		"name": "David Kudera",
-		"email": "sakren@gmail.com"
+		"email": "kudera.d@gmail.com"
 	},
 	"keywords": [
 		"tree",
@@ -16,7 +16,7 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "git@github.com:sakren/node-tree-checkbox-list.git"
+		"url": "git@github.com:Carrooi/Node-TreeCheckboxList.git"
 	},
 	"license": "MIT",
 	"engines": {

@@ -125,7 +125,7 @@ tree.prepare();
 
 ## Example of modal dialog
 
-![dialog](https://raw.github.com/sakren/node-tree-checkbox-list/master/example.png)
+![dialog](https://raw.github.com/Carrooi/Node-TreeCheckboxList/master/example.png)
 
 ## Tests
 
