@@ -141,6 +141,10 @@ $ npm test
 
 ## Changelog
 
+* 1.4.3
+	+ Move under Carrooi organization
+	+ Abandon project
+
 * 1.4.2
 	+ Little optimization
 	+ Updated modules
