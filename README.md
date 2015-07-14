@@ -3,6 +3,12 @@
 Modal dialog with checkbox list in tree.
 Depends on jquery.
 
+## Help
+
+Unfortunately I don't have any more time to maintain this repository :-(
+
+![sad cat](https://raw.githubusercontent.com/sakren/sakren.github.io/master/images/sad-kitten.jpg)
+
 ## Installation
 
 ```
