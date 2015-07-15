@@ -3,7 +3,7 @@
 Modal dialog with checkbox list in tree.
 Depends on jquery.
 
-## Help
+## Abandoned
 
 Unfortunately I don't have any more time to maintain this repository :-(
 
@@ -141,7 +141,7 @@ $ npm test
 
 ## Changelog
 
-* 1.4.3
+* 1.4.3 - 1.4.4
 	+ Move under Carrooi organization
 	+ Abandon project
 
